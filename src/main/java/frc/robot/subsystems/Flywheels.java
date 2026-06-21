@@ -11,8 +11,6 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class Flywheels extends SubsystemBase {
-  interface Const extends ShooterConstants {}
-
   // Define vendor motors
   private final SparkMax rawMotorLeftFlywheel =
       new SparkMax(Constants.CANIDs.Shooter.motorLeftFlywheel, MotorType.kBrushless);
@@ -23,13 +21,13 @@ public class Flywheels extends SubsystemBase {
   private final SmartMotorController motorLeftFlywheel =
       new SparkWrapper(
           rawMotorLeftFlywheel,
-          Const.leftFlywheelMotorPhysical,
-          Const.leftFlywheelMotorConfig.withSubsystem(this));
+          ShooterConstants.leftFlywheelMotorPhysical,
+          ShooterConstants.leftFlywheelMotorConfig.withSubsystem(this));
   private final SmartMotorController motorRightFlywheel =
       new SparkWrapper(
           rawMotorRightFlywheel,
-          Const.rightFlywheelMotorPhysical,
-          Const.rightFlywheelMotorConfig.withSubsystem(this));
+          ShooterConstants.rightFlywheelMotorPhysical,
+          ShooterConstants.rightFlywheelMotorConfig.withSubsystem(this));
 
   public void setSpeed(AngularVelocity speed) {
     motorLeftFlywheel.setVelocity(speed);

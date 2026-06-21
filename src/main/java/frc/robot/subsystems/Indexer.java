@@ -15,8 +15,6 @@ import yams.motorcontrollers.local.SparkWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class Indexer extends SubsystemBase {
-  interface Const extends IndexerConstants {}
-
   // Define vendor motors
   private final TalonFX rawMotorLow = new TalonFX(Constants.CANIDs.Indexer.motorLow);
   private final SparkMax rawMotorMiddle =
@@ -27,13 +25,13 @@ public class Indexer extends SubsystemBase {
   // Define SmartMotorControllers
   private final SmartMotorController motorLow =
       new TalonFXWrapper(
-          rawMotorLow, Const.lowMotorPhysical, Const.lowMotorConfig.withSubsystem(this));
+          rawMotorLow, IndexerConstants.lowMotorPhysical, IndexerConstants.lowMotorConfig.withSubsystem(this));
   private final SmartMotorController motorMid =
       new SparkWrapper(
-          rawMotorMiddle, Const.midMotorPhysical, Const.midMotorConfig.withSubsystem(this));
+          rawMotorMiddle, IndexerConstants.midMotorPhysical, IndexerConstants.midMotorConfig.withSubsystem(this));
   private final SmartMotorController motorHigh =
       new SparkWrapper(
-          rawMotorHigh, Const.highMotorPhysical, Const.highMotorConfig.withSubsystem(this));
+          rawMotorHigh, IndexerConstants.highMotorPhysical, IndexerConstants.highMotorConfig.withSubsystem(this));
 
   // Define state set command
   public void setState(IndexerTarget state) {

@@ -12,15 +12,13 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class Hood extends SubsystemBase {
-  interface Const extends ShooterConstants {}
-
   // Define vendor motors
   private final TalonFX rawMotor = new TalonFX(Constants.CANIDs.Shooter.motorHood);
 
   // Define SmartMotorControllers
   private final SmartMotorController motor =
       new TalonFXWrapper(
-          rawMotor, Const.hoodMotorPhysical, Const.hoodMotorConfig.withSubsystem(this));
+          rawMotor, ShooterConstants.hoodMotorPhysical, ShooterConstants.hoodMotorConfig.withSubsystem(this));
 
   public void setHoodAngle(Angle angle) {
     motor.setPosition(angle);
