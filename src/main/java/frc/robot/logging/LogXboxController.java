@@ -8,9 +8,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-public class LogXboxController {
+public class LogXboxController implements RunsPeriodic {
   CommandXboxController controller;
   XboxController hid;
+  final String name;
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable dsRoot = inst.getTable("Controllers");
@@ -45,10 +46,11 @@ public class LogXboxController {
   DoublePublisher rt;
 
   public LogXboxController(String name, Integer slot, CommandXboxController controller) {
+    this.name = "Controller " + name + ", slot:" + slot.toString();
     this.controller = controller;
     this.hid = controller.getHID();
 
-    controllerRoot = dsRoot.getSubTable("Controller_" + slot.toString());
+    controllerRoot = dsRoot.getSubTable(this.name);
 
     axes = controllerRoot.getSubTable("Axes");
     buttons = controllerRoot.getSubTable("Buttons");
@@ -79,6 +81,12 @@ public class LogXboxController {
     rt = axes.getDoubleTopic("RightTrigger").publish();
   }
 
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
   public void periodic() {
     a.set(hid.getAButton());
     b.set(hid.getBButton());

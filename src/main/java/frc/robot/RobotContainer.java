@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.Shoot;
 import frc.robot.generated.TunerConstantsFake0621;
+import frc.robot.logging.LogXboxController;
+import frc.robot.logging.Logging;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
 import frc.robot.subsystems.Hood;
@@ -72,11 +74,13 @@ public class RobotContainer {
 
     SmartDashboard.putData(flywheels);
 
-    Logging.getInstance().setupControllerLog("evenCtl", 0, evenController);
+    Logging.getInstance().setPublishTimings(true);
+    Logging.getInstance().addLogger(new LogXboxController("evenCtl", 0, evenController));
   }
 
   public void registerPeriodics(Robot robot) {
-    robot.addPeriodic(Logging.getInstance()::periodic, 0.04);
+    // Periodic is a lambda method
+    robot.addPeriodic(Logging.getInstance().periodic, 0.04);
   }
 
   private void configureBindings() {
