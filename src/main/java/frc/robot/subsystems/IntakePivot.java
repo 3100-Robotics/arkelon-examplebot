@@ -20,7 +20,9 @@ public class IntakePivot extends SubsystemBase {
   // Define SmartMotorControllers
   private final SmartMotorController motor =
       new TalonFXWrapper(
-          rawMotor, IntakeConstants.pivotMotorPhysical, IntakeConstants.pivotMotorConfig.withSubsystem(this));
+          rawMotor,
+          IntakeConstants.pivotMotorPhysical,
+          IntakeConstants.pivotMotorConfig.withSubsystem(this));
 
   public void setState(IntakePivotTarget state) {
     this.state = state;

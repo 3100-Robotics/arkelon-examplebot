@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.Matrix;
@@ -12,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.generated.TunerConstantsFake0621.TunerSwerveDrivetrain;
 import java.util.Optional;
@@ -36,6 +36,13 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
   /* Keep track if we've ever applied the operator perspective before or not */
   private boolean m_hasAppliedOperatorPerspective = false;
 
+  private void commonSetup() {
+    if (Utils.isSimulation()) {
+      startSimThread();
+    }
+    configNeutralMode(NeutralModeValue.Brake);
+  }
+
   /**
    * Constructs a CTRE SwerveDrivetrain using the specified constants.
    *
@@ -48,9 +55,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
   public Drivetrain(
       SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
     super(drivetrainConstants, modules);
-    if (Utils.isSimulation()) {
-      startSimThread();
-    }
+    commonSetup();
   }
 
   /**
@@ -69,9 +74,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
       double odometryUpdateFrequency,
       SwerveModuleConstants<?, ?, ?>... modules) {
     super(drivetrainConstants, odometryUpdateFrequency, modules);
-    if (Utils.isSimulation()) {
-      startSimThread();
-    }
+    commonSetup();
   }
 
   /**
@@ -101,9 +104,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         odometryStandardDeviation,
         visionStandardDeviation,
         modules);
-    if (Utils.isSimulation()) {
-      startSimThread();
-    }
+    commonSetup();
   }
 
   @Override

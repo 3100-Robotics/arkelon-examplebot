@@ -15,7 +15,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.Shoot;
+import frc.robot.generated.TunerConstantsFake0621;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
@@ -50,6 +53,8 @@ public class RobotContainer {
       };
 
   // Subsystems
+  private final Drivetrain drivetrain = TunerConstantsFake0621.createDrivetrain();
+
   private final Flywheels flywheels = new Flywheels();
   private final Hood hood = new Hood();
 
@@ -62,20 +67,27 @@ public class RobotContainer {
 
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
-    Logging.getInstance();
+    // Logging.getInstance();
     configureBindings();
+
+    SmartDashboard.putData(flywheels);
+
+    Logging.getInstance().setupControllerLog("evenCtl", 0, evenController);
+  }
+
+  public void registerPeriodics(Robot robot) {
+    robot.addPeriodic(Logging.getInstance()::periodic, 0.04);
   }
 
   private void configureBindings() {
-    // evenController.a().whileTrue(Commands.print("A"));
-    // evenController.b().whileTrue(Commands.print("B"));
-    // evenController.x().whileTrue(Commands.print("X"));
-    // evenController.y().whileTrue(Commands.print("Y"));
-    // evenController.leftBumper().whileTrue(Commands.print("LB"));
-    // evenController.rightBumper().whileTrue(Commands.print("RB"));
-    // evenController.leftStick().whileTrue(Commands.print("LSTCK"));
-    // evenController.rightStick().whileTrue(Commands.print("RSTCK"));
     evenController.a().whileTrue(new Shoot(flywheels, hood, indexer, shotMap));
+    drivetrain.setDefaultCommand(
+        new DriveTeleop(
+            drivetrain,
+            evenController::getLeftX,
+            evenController::getLeftY,
+            evenController::getRightX,
+            evenController::getRightTriggerAxis));
   }
 
   public Command getAutonomousCommand() {

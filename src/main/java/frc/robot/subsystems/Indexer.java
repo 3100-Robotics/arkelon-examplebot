@@ -25,13 +25,19 @@ public class Indexer extends SubsystemBase {
   // Define SmartMotorControllers
   private final SmartMotorController motorLow =
       new TalonFXWrapper(
-          rawMotorLow, IndexerConstants.lowMotorPhysical, IndexerConstants.lowMotorConfig.withSubsystem(this));
+          rawMotorLow,
+          IndexerConstants.lowMotorPhysical,
+          IndexerConstants.lowMotorConfig.withSubsystem(this));
   private final SmartMotorController motorMid =
       new SparkWrapper(
-          rawMotorMiddle, IndexerConstants.midMotorPhysical, IndexerConstants.midMotorConfig.withSubsystem(this));
+          rawMotorMiddle,
+          IndexerConstants.midMotorPhysical,
+          IndexerConstants.midMotorConfig.withSubsystem(this));
   private final SmartMotorController motorHigh =
       new SparkWrapper(
-          rawMotorHigh, IndexerConstants.highMotorPhysical, IndexerConstants.highMotorConfig.withSubsystem(this));
+          rawMotorHigh,
+          IndexerConstants.highMotorPhysical,
+          IndexerConstants.highMotorConfig.withSubsystem(this));
 
   // Define state set command
   public void setState(IndexerTarget state) {

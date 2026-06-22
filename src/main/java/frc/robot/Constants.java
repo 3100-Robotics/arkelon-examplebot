@@ -64,6 +64,8 @@ public class Constants {
     }
   }
 
+  public static interface DrivetrainConstants {}
+
   public static interface ShooterConstants {
     DCMotor hoodMotorPhysical = DCMotor.getKrakenX60(1);
     DCMotor leftFlywheelMotorPhysical = DCMotor.getNEO(1);

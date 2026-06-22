@@ -18,7 +18,9 @@ public class IntakeRoller extends SubsystemBase {
   // Define SmartMotorControllers
   private final SmartMotorController motor =
       new SparkWrapper(
-          rawMotor, IntakeConstants.pivotMotorPhysical, IntakeConstants.rollerMotorConfig.withSubsystem(this));
+          rawMotor,
+          IntakeConstants.pivotMotorPhysical,
+          IntakeConstants.rollerMotorConfig.withSubsystem(this));
 
   // Define state set command
   public void setState(IntakeRollerTarget state) {

@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -41,7 +40,7 @@ public class Flywheels extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putData(this);
+    // SmartDashboard.putData(this);
     motorLeftFlywheel.updateTelemetry();
     motorRightFlywheel.updateTelemetry();
   }

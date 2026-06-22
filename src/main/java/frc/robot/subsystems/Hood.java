@@ -18,7 +18,9 @@ public class Hood extends SubsystemBase {
   // Define SmartMotorControllers
   private final SmartMotorController motor =
       new TalonFXWrapper(
-          rawMotor, ShooterConstants.hoodMotorPhysical, ShooterConstants.hoodMotorConfig.withSubsystem(this));
+          rawMotor,
+          ShooterConstants.hoodMotorPhysical,
+          ShooterConstants.hoodMotorConfig.withSubsystem(this));
 
   public void setHoodAngle(Angle angle) {
     motor.setPosition(angle);
