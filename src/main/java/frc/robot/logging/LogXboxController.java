@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /** A {@link CompoundLogger} which logs all inputs from a {@link CommandXboxController} */
 public class LogXboxController implements CompoundLogger {
+  private final CommandXboxController controller;
   private final XboxController hid;
   private final String name;
 
@@ -51,6 +52,7 @@ public class LogXboxController implements CompoundLogger {
    * @param controller the {@link CommandXboxController} to log
    */
   public LogXboxController(String name, CommandXboxController controller) {
+    this.controller = controller;
     this.hid = controller.getHID();
     this.name = "Controller " + name + " slot:" + ((Integer) hid.getPort()).toString();
 
@@ -117,5 +119,10 @@ public class LogXboxController implements CompoundLogger {
   @Override
   public LogMode getLogMode() {
     return LogMode.NetworkOnly;
+  }
+
+  @Override
+  public Object getOperatingObject() {
+    return controller;
   }
 }

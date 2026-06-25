@@ -5,7 +5,8 @@ import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,9 +42,7 @@ public class RootLogging {
   private final List<SourceUpdateMap<PrimaryIntegerLog, Integer>> integerLogs = new ArrayList<>();
   private final List<SourceUpdateMap<PrimaryBooleanLog, Boolean>> booleanLogs = new ArrayList<>();
 
-  private final HashMap<String, CompoundLogger> compoundLoggers = new HashMap<>();
-
-  private boolean isDevMode;
+  private final HashMap<Object, CompoundLogger> compoundLoggers = new HashMap<>();
 
   /**
    * Initializes logging framework by starting DataLogManager, disabling default logging of
@@ -54,10 +53,6 @@ public class RootLogging {
     LiveWindow.disableAllTelemetry();
     DriverStation.startDataLog(DataLogManager.getLog());
     DataLogManager.logNetworkTables(false);
-  }
-
-  public void setDevMode(boolean newDevMode) {
-    isDevMode = newDevMode;
   }
 
   public RootLogging addStringLogger(String key, LogMode mode, Supplier<String> stringGetter) {
@@ -101,9 +96,25 @@ public class RootLogging {
     return this;
   }
 
-  public RootLogging addCompoundLogger(String name, CompoundLogger compoundLogger) {
-    compoundLoggers.put(name, compoundLogger);
+  public RootLogging addCompoundLogger(String key, CompoundLogger compoundLogger) {
+    compoundLoggers.put(key, compoundLogger);
     return this;
+  }
+
+  // Special Compounds
+  public RootLogging addSubsystemCommandLogger(LogMode mode, Subsystem subsystem) {
+    addCompoundLogger(new LogSubsystemCommands(mode, subsystem));
+    return this;
+  }
+
+  public RootLogging addXboxControllerLogger(String name, CommandXboxController controller) {
+    addCompoundLogger(name, new LogXboxController(name, controller));
+    return this;
+  }
+
+  public String getKey(Object o) {
+    CompoundLogger cl = compoundLoggers.get(o);
+    return "Thus";
   }
 
   public void update() {

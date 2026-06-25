@@ -2,8 +2,10 @@ package frc.robot.logging;
 
 public interface CompoundLogger {
   public default String getName() {
-    return getClass().getName() + " " + ((Integer) hashCode()).toString();
+    return getClass().getName();
   }
+
+  public Object getOperatingObject();
 
   public default void update() {}
 

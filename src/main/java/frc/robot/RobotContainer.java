@@ -19,8 +19,6 @@ import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.Shoot;
 import frc.robot.generated.TunerConstantsFake0621;
 import frc.robot.logging.LogMode;
-import frc.robot.logging.LogSubsystem;
-import frc.robot.logging.LogXboxController;
 import frc.robot.logging.RootLogging;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
@@ -72,23 +70,27 @@ public class RobotContainer {
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     configureBindings();
-
-    // Without this line no logging will happen
-    RootLogging.getInstance().initializeLogging();
-    RootLogging.getInstance()
-        .addCompoundLogger(new LogXboxController("evenCtl", evenController))
-        .addBooleanLogger("testKey", LogMode.Both, () -> false)
-        .addCompoundLogger(new LogSubsystem(LogMode.Both, drivetrain))
-        .addCompoundLogger(new LogSubsystem(LogMode.Both, flywheels))
-        .addCompoundLogger(new LogSubsystem(LogMode.Both, hood))
-        .addCompoundLogger(new LogSubsystem(LogMode.Both, indexer))
-        .addCompoundLogger(new LogSubsystem(LogMode.Both, intakePivot))
-        .addCompoundLogger(new LogSubsystem(LogMode.Both, intakeRoller));
+    configureLogging();
   }
 
   public void registerPeriodics(Robot robot) {
     // update is a lambda method
     robot.addPeriodic(RootLogging.getInstance()::update, 0.02);
+  }
+
+  private void configureLogging() {
+    // Without this line no logging will happen
+    RootLogging.getInstance().initializeLogging();
+    RootLogging.getInstance()
+        // Log Controllers
+        .addXboxControllerLogger("evenCtl", evenController)
+        // Log Subsystems
+        .addSubsystemCommandLogger(LogMode.Both, drivetrain)
+        .addSubsystemCommandLogger(LogMode.Both, flywheels)
+        .addSubsystemCommandLogger(LogMode.Both, hood)
+        .addSubsystemCommandLogger(LogMode.Both, indexer)
+        .addSubsystemCommandLogger(LogMode.Both, intakePivot)
+        .addSubsystemCommandLogger(LogMode.Both, intakeRoller);
   }
 
   private void configureBindings() {

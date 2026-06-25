@@ -2,17 +2,23 @@ package frc.robot.logging;
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
-public class LogSubsystem implements CompoundLogger {
+public class LogSubsystemCommands implements CompoundLogger {
   public static final String subsystemTableRoot = "Subsystems";
 
   private final LogMode logMode;
   private final String name;
   private final String thisSubsystemRoot;
 
-  public LogSubsystem(LogMode logMode, Subsystem subsystem) {
+  private final Subsystem subsystem;
+
+  public LogSubsystemCommands(LogMode logMode, Subsystem subsystem) {
+    this.subsystem = subsystem;
     this.logMode = logMode;
     this.name = subsystem.getName();
-    this.thisSubsystemRoot = subsystemTableRoot + "/" + name + "/";
+    this.thisSubsystemRoot = subsystemTableRoot + "/" + name + "/" + name + "Commands/";
+
+    // Publish only to network tables that it is of type subsystem (for display in dashboards)
+    OneShot.setString(thisSubsystemRoot + ".type", "Subsystem");
 
     RootLogging.getInstance()
         .addBooleanLogger(
@@ -41,5 +47,10 @@ public class LogSubsystem implements CompoundLogger {
   @Override
   public LogMode getLogMode() {
     return this.logMode;
+  }
+
+  @Override
+  public Object getOperatingObject() {
+    return subsystem;
   }
 }

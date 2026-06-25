@@ -13,10 +13,10 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
-import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+import yams.telemetry.SmartMotorControllerTelemetryConfig;
 
 /* TODO LTPS
  *
@@ -30,9 +30,8 @@ public class Constants {
   // Telemetry verbosities all go together instead of being in thier specific superstructure
   // sections [LTPS TODO]
   public static interface TelemetryConfigs {
-    SmartMotorControllerTelemetryConfig rootConfig = new SmartMotorControllerTelemetryConfig()
-      .withTelemetryVerbosity(TelemetryVerbosity.LOW)
-    ;
+    SmartMotorControllerTelemetryConfig rootConfig =
+        new SmartMotorControllerTelemetryConfig().withTelemetryVerbosity(TelemetryVerbosity.LOW);
     SmartMotorControllerTelemetryConfig shooterMotorHood = rootConfig;
     SmartMotorControllerTelemetryConfig shooterMotorLeftFlywheel = rootConfig;
     SmartMotorControllerTelemetryConfig shooterMotorRightFlywheel = rootConfig;
