@@ -40,7 +40,6 @@ public class IntakePivot extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putData(this);
     SmartDashboard.putString(getName() + "/state", state.toString());
     motor.updateTelemetry();
   }

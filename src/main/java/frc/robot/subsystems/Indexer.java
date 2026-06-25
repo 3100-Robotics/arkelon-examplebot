@@ -61,8 +61,6 @@ public class Indexer extends SubsystemBase {
   // Define periodics
   @Override
   public void periodic() {
-    SmartDashboard.putData(this);
-
     SmartDashboard.putNumber("indexerLow", motorLow.getMechanismVelocity().in(RPM));
 
     motorLow.updateTelemetry();

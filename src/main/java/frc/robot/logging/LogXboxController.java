@@ -8,10 +8,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-public class LogXboxController implements RunsPeriodic {
-  CommandXboxController controller;
-  XboxController hid;
-  final String name;
+/** A {@link CompoundLogger} which logs all inputs from a {@link CommandXboxController} */
+public class LogXboxController implements CompoundLogger {
+  private final XboxController hid;
+  private final String name;
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable dsRoot = inst.getTable("Controllers");
@@ -45,10 +45,14 @@ public class LogXboxController implements RunsPeriodic {
   DoublePublisher lt;
   DoublePublisher rt;
 
-  public LogXboxController(String name, Integer slot, CommandXboxController controller) {
-    this.name = "Controller " + name + ", slot:" + slot.toString();
-    this.controller = controller;
+  /**
+   * @param name base name of the controller. Note that the telemetry/logging name will be prefixed
+   *     with {@code Controller} and postfixed with which DS slot it occupies.
+   * @param controller the {@link CommandXboxController} to log
+   */
+  public LogXboxController(String name, CommandXboxController controller) {
     this.hid = controller.getHID();
+    this.name = "Controller " + name + " slot:" + ((Integer) hid.getPort()).toString();
 
     controllerRoot = dsRoot.getSubTable(this.name);
 
@@ -87,7 +91,7 @@ public class LogXboxController implements RunsPeriodic {
   }
 
   @Override
-  public void periodic() {
+  public void update() {
     a.set(hid.getAButton());
     b.set(hid.getBButton());
     x.set(hid.getXButton());
@@ -108,5 +112,10 @@ public class LogXboxController implements RunsPeriodic {
 
     lt.set(hid.getLeftTriggerAxis());
     rt.set(hid.getRightTriggerAxis());
+  }
+
+  @Override
+  public LogMode getLogMode() {
+    return LogMode.NetworkOnly;
   }
 }

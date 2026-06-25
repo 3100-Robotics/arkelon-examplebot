@@ -32,7 +32,6 @@ public class Hood extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putData(this);
     SmartDashboard.putNumber(getName() + "/hoodAngle", motor.getMechanismPosition().in(Degrees));
     motor.updateTelemetry();
   }

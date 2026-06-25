@@ -18,8 +18,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.Shoot;
 import frc.robot.generated.TunerConstantsFake0621;
+import frc.robot.logging.LogMode;
+import frc.robot.logging.LogSubsystem;
 import frc.robot.logging.LogXboxController;
-import frc.robot.logging.Logging;
+import frc.robot.logging.RootLogging;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
 import frc.robot.subsystems.Hood;
@@ -57,7 +59,7 @@ public class RobotContainer {
   // Subsystems
   private final Drivetrain drivetrain = TunerConstantsFake0621.createDrivetrain();
 
-  private final Flywheels flywheels = new Flywheels();
+  public final Flywheels flywheels = new Flywheels();
   private final Hood hood = new Hood();
 
   private final Indexer indexer = new Indexer();
@@ -69,22 +71,29 @@ public class RobotContainer {
 
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
-    // Logging.getInstance();
     configureBindings();
 
-    SmartDashboard.putData(flywheels);
-
-    Logging.getInstance().setPublishTimings(true);
-    Logging.getInstance().addLogger(new LogXboxController("evenCtl", 0, evenController));
+    // Without this line no logging will happen
+    RootLogging.getInstance().initializeLogging();
+    RootLogging.getInstance()
+        .addCompoundLogger(new LogXboxController("evenCtl", evenController))
+        .addBooleanLogger("testKey", LogMode.Both, () -> false)
+        .addCompoundLogger(new LogSubsystem(LogMode.Both, drivetrain))
+        .addCompoundLogger(new LogSubsystem(LogMode.Both, flywheels))
+        .addCompoundLogger(new LogSubsystem(LogMode.Both, hood))
+        .addCompoundLogger(new LogSubsystem(LogMode.Both, indexer))
+        .addCompoundLogger(new LogSubsystem(LogMode.Both, intakePivot))
+        .addCompoundLogger(new LogSubsystem(LogMode.Both, intakeRoller));
   }
 
   public void registerPeriodics(Robot robot) {
-    // Periodic is a lambda method
-    robot.addPeriodic(Logging.getInstance().periodic, 0.04);
+    // update is a lambda method
+    robot.addPeriodic(RootLogging.getInstance()::update, 0.02);
   }
 
   private void configureBindings() {
     evenController.a().whileTrue(new Shoot(flywheels, hood, indexer, shotMap));
+
     drivetrain.setDefaultCommand(
         new DriveTeleop(
             drivetrain,

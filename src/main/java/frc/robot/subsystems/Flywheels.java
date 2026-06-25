@@ -40,7 +40,6 @@ public class Flywheels extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // SmartDashboard.putData(this);
     motorLeftFlywheel.updateTelemetry();
     motorRightFlywheel.updateTelemetry();
   }

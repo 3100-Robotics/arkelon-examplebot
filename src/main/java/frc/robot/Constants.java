@@ -13,6 +13,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
+import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
@@ -28,17 +29,20 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 public class Constants {
   // Telemetry verbosities all go together instead of being in thier specific superstructure
   // sections [LTPS TODO]
-  public static interface TelemetryVerbosities {
-    TelemetryVerbosity shooterMotorHood = TelemetryVerbosity.HIGH;
-    TelemetryVerbosity shooterMotorLeftFlywheel = TelemetryVerbosity.LOW;
-    TelemetryVerbosity shooterMotorRightFlywheel = TelemetryVerbosity.LOW;
+  public static interface TelemetryConfigs {
+    SmartMotorControllerTelemetryConfig rootConfig = new SmartMotorControllerTelemetryConfig()
+      .withTelemetryVerbosity(TelemetryVerbosity.LOW)
+    ;
+    SmartMotorControllerTelemetryConfig shooterMotorHood = rootConfig;
+    SmartMotorControllerTelemetryConfig shooterMotorLeftFlywheel = rootConfig;
+    SmartMotorControllerTelemetryConfig shooterMotorRightFlywheel = rootConfig;
 
-    TelemetryVerbosity indexerMotorLow = TelemetryVerbosity.LOW;
-    TelemetryVerbosity indexerMotorMid = TelemetryVerbosity.LOW;
-    TelemetryVerbosity indexerMotorHigh = TelemetryVerbosity.LOW;
+    SmartMotorControllerTelemetryConfig indexerMotorLow = rootConfig;
+    SmartMotorControllerTelemetryConfig indexerMotorMid = rootConfig;
+    SmartMotorControllerTelemetryConfig indexerMotorHigh = rootConfig;
 
-    TelemetryVerbosity intakeMotorPivot = TelemetryVerbosity.LOW;
-    TelemetryVerbosity intakeMotorRoller = TelemetryVerbosity.LOW;
+    SmartMotorControllerTelemetryConfig intakeMotorPivot = rootConfig;
+    SmartMotorControllerTelemetryConfig intakeMotorRoller = rootConfig;
   }
 
   // CAN Ids all go together instead of being in thier specific superstructure sections [LTPS
@@ -87,7 +91,7 @@ public class Constants {
             .withSimFeedforward(new ArmFeedforward(0, 0, 0))
             // Control mode
             .withControlMode(ControlMode.CLOSED_LOOP)
-            .withTelemetry("hoodMotor", TelemetryVerbosities.shooterMotorHood)
+            .withTelemetry("hoodMotor", TelemetryConfigs.shooterMotorHood)
             // Sim props
             .withMomentOfInertia(KilogramSquareMeters.of(0.0190245794))
             // Starting Position
@@ -109,7 +113,7 @@ public class Constants {
             .withSimFeedforward(new ArmFeedforward(0, 0, 0))
             // Control mode
             .withControlMode(ControlMode.CLOSED_LOOP)
-            .withTelemetry("leftFLywheelMotor", TelemetryVerbosities.shooterMotorLeftFlywheel)
+            .withTelemetry("leftFLywheelMotor", TelemetryConfigs.shooterMotorLeftFlywheel)
             // Sim props
             .withMomentOfInertia(Inches.of(14.724154), Pound.of(7.8858569));
 
@@ -129,7 +133,7 @@ public class Constants {
             .withSimFeedforward(new ArmFeedforward(0, 0, 0))
             // Control mode
             .withControlMode(ControlMode.CLOSED_LOOP)
-            .withTelemetry("rightFLywheelMotor", TelemetryVerbosities.shooterMotorRightFlywheel)
+            .withTelemetry("rightFLywheelMotor", TelemetryConfigs.shooterMotorRightFlywheel)
             // Sim props
             .withMomentOfInertia(Inches.of(14.724154), Pound.of(7.8858569));
   }
@@ -156,7 +160,7 @@ public class Constants {
             .withSimFeedforward(new SimpleMotorFeedforward(0, 0.145))
             // Control mode
             .withControlMode(ControlMode.CLOSED_LOOP)
-            .withTelemetry("lowMotor", TelemetryVerbosities.indexerMotorLow)
+            .withTelemetry("lowMotor", TelemetryConfigs.indexerMotorLow)
             // Sim props
             .withMomentOfInertia(KilogramSquareMeters.of(0.001));
 
@@ -176,7 +180,7 @@ public class Constants {
             .withSimFeedforward(new ArmFeedforward(0, 0, 0))
             // Control mode
             .withControlMode(ControlMode.CLOSED_LOOP)
-            .withTelemetry("midMotor", TelemetryVerbosities.indexerMotorMid)
+            .withTelemetry("midMotor", TelemetryConfigs.indexerMotorMid)
             // Sim props
             .withMomentOfInertia(KilogramSquareMeters.of(0.001));
 
@@ -196,7 +200,7 @@ public class Constants {
             .withSimFeedforward(new ArmFeedforward(0, 0, 0))
             // Control mode
             .withControlMode(ControlMode.CLOSED_LOOP)
-            .withTelemetry("highMotor", TelemetryVerbosities.indexerMotorHigh)
+            .withTelemetry("highMotor", TelemetryConfigs.indexerMotorHigh)
             // Sim props
             .withMomentOfInertia(KilogramSquareMeters.of(0.001));
   }
@@ -221,7 +225,7 @@ public class Constants {
             .withSimFeedforward(new ArmFeedforward(0, 0, 0))
             // Control mode
             .withControlMode(ControlMode.CLOSED_LOOP)
-            .withTelemetry("pivotMotor", TelemetryVerbosities.intakeMotorPivot)
+            .withTelemetry("pivotMotor", TelemetryConfigs.intakeMotorPivot)
             // Sim props
             .withMomentOfInertia(Inches.of(14.724154), Pound.of(7.8858569));
 
@@ -241,7 +245,7 @@ public class Constants {
             .withSimFeedforward(new ArmFeedforward(0, 0, 0))
             // Control mode
             .withControlMode(ControlMode.CLOSED_LOOP)
-            .withTelemetry("rollerMotor", TelemetryVerbosities.intakeMotorRoller)
+            .withTelemetry("rollerMotor", TelemetryConfigs.intakeMotorRoller)
             // Sim props
             .withMomentOfInertia(Inches.of(0.675), Pounds.of(0.9136709));
   }
