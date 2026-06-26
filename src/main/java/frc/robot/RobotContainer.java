@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.Shoot;
 import frc.robot.generated.TunerConstantsFake0621;
+import frc.robot.logging.LogCTREDrivetrain;
 import frc.robot.logging.LogMode;
 import frc.robot.logging.RootLogging;
 import frc.robot.subsystems.Drivetrain;
@@ -81,16 +82,21 @@ public class RobotContainer {
   private void configureLogging() {
     // Without this line no logging will happen
     RootLogging.getInstance().initializeLogging();
+
+    LogMode silentOnField = true ? LogMode.FileOnly : LogMode.Both;
+
     RootLogging.getInstance()
         // Log Controllers
         .addXboxControllerLogger("evenCtl", evenController)
         // Log Subsystems
-        .addSubsystemCommandLogger(LogMode.Both, drivetrain)
-        .addSubsystemCommandLogger(LogMode.Both, flywheels)
-        .addSubsystemCommandLogger(LogMode.Both, hood)
-        .addSubsystemCommandLogger(LogMode.Both, indexer)
-        .addSubsystemCommandLogger(LogMode.Both, intakePivot)
-        .addSubsystemCommandLogger(LogMode.Both, intakeRoller);
+        .addSubsystemCommandLogger("Subsystems", LogMode.Both, drivetrain)
+        .addSubsystemCommandLogger("Subsystems", LogMode.Both, flywheels)
+        .addSubsystemCommandLogger("Subsystems", LogMode.Both, hood)
+        .addSubsystemCommandLogger("Subsystems", LogMode.Both, indexer)
+        .addSubsystemCommandLogger("Subsystems", LogMode.Both, intakePivot)
+        .addSubsystemCommandLogger("Subsystems", LogMode.Both, intakeRoller)
+        .addCompoundLogger(
+            new LogCTREDrivetrain("Subsystems/" + drivetrain.getName(), LogMode.Both, drivetrain));
   }
 
   private void configureBindings() {

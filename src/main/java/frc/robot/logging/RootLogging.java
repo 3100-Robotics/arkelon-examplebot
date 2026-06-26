@@ -1,5 +1,7 @@
 package frc.robot.logging;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -41,6 +43,9 @@ public class RootLogging {
   private final List<SourceUpdateMap<PrimaryDoubleLog, Double>> doubleLogs = new ArrayList<>();
   private final List<SourceUpdateMap<PrimaryIntegerLog, Integer>> integerLogs = new ArrayList<>();
   private final List<SourceUpdateMap<PrimaryBooleanLog, Boolean>> booleanLogs = new ArrayList<>();
+  private final List<SourceUpdateMap<PrimaryPoseLog, Pose2d>> poseLogs = new ArrayList<>();
+  private final List<SourceUpdateMap<PrimarySwerveStateLog, SwerveModuleState[]>> swerveStateLogs =
+      new ArrayList<>();
 
   private final HashMap<Object, CompoundLogger> compoundLoggers = new HashMap<>();
 
@@ -91,6 +96,26 @@ public class RootLogging {
     return this;
   }
 
+  public RootLogging addPoseLogger(String key, LogMode mode, Supplier<Pose2d> poseGetter) {
+    PrimaryPoseLog logPub = new PrimaryPoseLog(key, mode, ntInst, log);
+    SourceUpdateMap<PrimaryPoseLog, Pose2d> compundLogger =
+        new SourceUpdateMap<>(this, logPub, poseGetter);
+    poseLogs.add(compundLogger);
+
+    return this;
+  }
+
+  public RootLogging addSwerveStateLogger(
+      String key, LogMode mode, Supplier<SwerveModuleState[]> moduleStateGetter) {
+    PrimarySwerveStateLog logPub = new PrimarySwerveStateLog(key, mode, ntInst, log);
+    SourceUpdateMap<PrimarySwerveStateLog, SwerveModuleState[]> compundLogger =
+        new SourceUpdateMap<>(this, logPub, moduleStateGetter);
+    swerveStateLogs.add(compundLogger);
+
+    return this;
+  }
+
+  
   public RootLogging addCompoundLogger(CompoundLogger compoundLogger) {
     compoundLoggers.put(compoundLogger.getName(), compoundLogger);
     return this;
@@ -102,19 +127,14 @@ public class RootLogging {
   }
 
   // Special Compounds
-  public RootLogging addSubsystemCommandLogger(LogMode mode, Subsystem subsystem) {
-    addCompoundLogger(new LogSubsystemCommands(mode, subsystem));
+  public RootLogging addSubsystemCommandLogger(String logRoot, LogMode mode, Subsystem subsystem) {
+    addCompoundLogger(new LogSubsystemCommands(logRoot, mode, subsystem));
     return this;
   }
 
   public RootLogging addXboxControllerLogger(String name, CommandXboxController controller) {
     addCompoundLogger(name, new LogXboxController(name, controller));
     return this;
-  }
-
-  public String getKey(Object o) {
-    CompoundLogger cl = compoundLoggers.get(o);
-    return "Thus";
   }
 
   public void update() {
@@ -131,6 +151,15 @@ public class RootLogging {
     }
 
     for (SourceUpdateMap<PrimaryBooleanLog, Boolean> srcUpdateMap : booleanLogs) {
+      srcUpdateMap.log.update(srcUpdateMap.newValue.get());
+    }
+
+    for (SourceUpdateMap<PrimaryPoseLog, Pose2d> srcUpdateMap : poseLogs) {
+      srcUpdateMap.log.update(srcUpdateMap.newValue.get());
+    }
+
+    for (SourceUpdateMap<PrimarySwerveStateLog, SwerveModuleState[]> srcUpdateMap :
+        swerveStateLogs) {
       srcUpdateMap.log.update(srcUpdateMap.newValue.get());
     }
 
