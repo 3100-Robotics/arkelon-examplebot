@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.RPM;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,7 +29,7 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
 
-public class RobotContainer {
+public final class RobotContainer {
   private static final RobotContainer INSTANCE = new RobotContainer();
 
   public static RobotContainer getInstance() {
@@ -71,19 +72,21 @@ public class RobotContainer {
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     configureBindings();
-    configureLogging();
+    RootLogging.getInstance()
+        .applyToConfigurator(
+            configurator ->
+                configurator
+                    .setConfigureCallback(this::configureLogging)
+                    .addHook(DriverStation::isFMSAttached))
+        .initializeLogging(); // Must be the final call in the chain
   }
 
   public void registerPeriodics(Robot robot) {
-    // update is a lambda method
     robot.addPeriodic(RootLogging.getInstance()::update, 0.02);
   }
 
   private void configureLogging() {
-    // Without this line no logging will happen
-    RootLogging.getInstance().initializeLogging();
-
-    LogMode silentOnField = true ? LogMode.FileOnly : LogMode.Both;
+    LogMode silentOnField = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
 
     RootLogging.getInstance()
         // Log Controllers
@@ -101,7 +104,8 @@ public class RobotContainer {
 
   private void configureBindings() {
     evenController.a().whileTrue(new Shoot(flywheels, hood, indexer, shotMap));
-
+    evenController.b().onTrue(Commands.runOnce(() -> RootLogging.getInstance().cleanLoggers()));
+    evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
     drivetrain.setDefaultCommand(
         new DriveTeleop(
             drivetrain,

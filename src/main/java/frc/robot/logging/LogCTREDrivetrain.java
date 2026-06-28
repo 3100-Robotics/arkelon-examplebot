@@ -6,7 +6,6 @@ public class LogCTREDrivetrain implements CompoundLogger {
 
   private final SwerveDrivetrain<?, ?, ?> drivetrain;
   private final LogMode logMode;
-  private final String logRoot;
 
   private final String logRootSwerve;
   private final String logRootPose;
@@ -14,7 +13,6 @@ public class LogCTREDrivetrain implements CompoundLogger {
   public LogCTREDrivetrain(String logRoot, LogMode logMode, SwerveDrivetrain<?, ?, ?> drivetrain) {
     this.drivetrain = drivetrain;
     this.logMode = logMode;
-    this.logRoot = logRoot;
     this.logRootSwerve = logRoot + "/Swerve/";
     this.logRootPose = logRoot + "/Pose/";
 
@@ -22,7 +20,7 @@ public class LogCTREDrivetrain implements CompoundLogger {
     OneShot.setString(logRootPose + ".type", "Field2d");
 
     RootLogging.getInstance()
-        .addPoseLogger(logRootPose, logMode, () -> drivetrain.getState().Pose)
+        .addPoseLogger(logRootPose + "Robot", logMode, () -> drivetrain.getState().Pose)
         .addSwerveStateLogger(logRootSwerve, logMode, () -> drivetrain.getState().ModuleStates);
   }
 

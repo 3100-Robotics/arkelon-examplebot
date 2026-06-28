@@ -9,9 +9,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.logging.configuration.Configurator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class RootLogging {
@@ -38,6 +40,7 @@ public class RootLogging {
 
   private final NetworkTableInstance ntInst = NetworkTableInstance.getDefault();
   private final DataLog log = DataLogManager.getLog();
+  private final Configurator configurator = new Configurator(this::cleanLoggers, () -> {});
 
   private final List<SourceUpdateMap<PrimaryStringLog, String>> stringLogs = new ArrayList<>();
   private final List<SourceUpdateMap<PrimaryDoubleLog, Double>> doubleLogs = new ArrayList<>();
@@ -49,6 +52,8 @@ public class RootLogging {
 
   private final HashMap<Object, CompoundLogger> compoundLoggers = new HashMap<>();
 
+  private RootLogging() {}
+
   /**
    * Initializes logging framework by starting DataLogManager, disabling default logging of
    * NetworkTables, and hooking up the driver station logging
@@ -58,6 +63,8 @@ public class RootLogging {
     LiveWindow.disableAllTelemetry();
     DriverStation.startDataLog(DataLogManager.getLog());
     DataLogManager.logNetworkTables(false);
+
+    configurator.getConfiguratorCallback().run();
   }
 
   public RootLogging addStringLogger(String key, LogMode mode, Supplier<String> stringGetter) {
@@ -115,7 +122,6 @@ public class RootLogging {
     return this;
   }
 
-  
   public RootLogging addCompoundLogger(CompoundLogger compoundLogger) {
     compoundLoggers.put(compoundLogger.getName(), compoundLogger);
     return this;
@@ -137,7 +143,33 @@ public class RootLogging {
     return this;
   }
 
+  // Configuration
+  public RootLogging applyToConfigurator(Consumer<Configurator> applyTo) {
+    applyTo.accept(configurator);
+    return this;
+  }
+
+  public void cleanLoggers() {
+    stringLogs.clear();
+    doubleLogs.clear();
+    integerLogs.clear();
+    booleanLogs.clear();
+    poseLogs.clear();
+    swerveStateLogs.clear();
+    compoundLoggers.clear();
+
+    // ntInst.stopLocal();
+    // ntInst.startServer();
+    // TODO figure out how to change logs
+    // DataLogManager.stop();
+    // DataLogManager.start(null, null);
+  }
+
   public void update() {
+    if (DriverStation.isDisabled()) {
+      configurator.checkAllHooks();
+    }
+
     for (SourceUpdateMap<PrimaryStringLog, String> srcUpdateMap : stringLogs) {
       srcUpdateMap.log.update(srcUpdateMap.newValue.get());
     }
