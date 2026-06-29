@@ -72,6 +72,7 @@ public final class RobotContainer {
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     configureBindings();
+    
     RootLogging.getInstance()
         .applyToConfigurator(
             configurator ->
@@ -94,7 +95,7 @@ public final class RobotContainer {
         .addBooleanLogger("Test2", noNetOnField, evenController.y()::getAsBoolean)
         .addCompoundLogger(new LogSubsystemCommands("Drivetrain", noNetOnField, drivetrain))
         .addCompoundLogger(new LogCTREDrivetrain("dtb", noNetOnField, drivetrain))
-        .addCompoundLogger(new LogXboxController("evenCtl", evenController));
+        .addCompoundLogger(new LogNetworkXboxController("evenCtl", evenController));
   }
 
   private void configureBindings() {

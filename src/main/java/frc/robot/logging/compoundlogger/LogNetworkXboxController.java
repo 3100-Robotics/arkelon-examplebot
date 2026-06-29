@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.logging.LogMode;
 
 /** A {@link CompoundLogger} which logs all inputs from a {@link CommandXboxController} */
-public class LogXboxController implements CompoundLogger {
+public class LogNetworkXboxController implements CompoundLogger {
   private final XboxController hid;
   private final String name;
 
@@ -51,13 +51,14 @@ public class LogXboxController implements CompoundLogger {
    *     with {@code Controller} and postfixed with which DS slot it occupies.
    * @param controller the {@link CommandXboxController} to log
    */
-  public LogXboxController(String name, CommandXboxController controller) {
+  public LogNetworkXboxController(String name, CommandXboxController controller) {
     this.hid = controller.getHID();
     this.name = name;
   }
 
   @Override
   public void initialize(String parentTable) {
+    // TODO Make declaritive, dont undercut RootLogging
     controllerRoot = inst.getTable(parentTable + this.name);
 
     axes = controllerRoot.getSubTable("Axes");
