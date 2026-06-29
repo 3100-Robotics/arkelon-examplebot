@@ -1,4 +1,4 @@
-package frc.robot.logging;
+package frc.robot.logging.compoundlogger;
 
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -7,15 +7,15 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.logging.LogMode;
 
 /** A {@link CompoundLogger} which logs all inputs from a {@link CommandXboxController} */
 public class LogXboxController implements CompoundLogger {
-  private final CommandXboxController controller;
   private final XboxController hid;
   private final String name;
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
-  NetworkTable dsRoot = inst.getTable("Controllers");
+
   NetworkTable controllerRoot;
 
   NetworkTable axes;
@@ -52,11 +52,13 @@ public class LogXboxController implements CompoundLogger {
    * @param controller the {@link CommandXboxController} to log
    */
   public LogXboxController(String name, CommandXboxController controller) {
-    this.controller = controller;
     this.hid = controller.getHID();
-    this.name = "Controller " + name + " slot:" + ((Integer) hid.getPort()).toString();
+    this.name = name;
+  }
 
-    controllerRoot = dsRoot.getSubTable(this.name);
+  @Override
+  public void initialize(String parentTable) {
+    controllerRoot = inst.getTable(parentTable + this.name);
 
     axes = controllerRoot.getSubTable("Axes");
     buttons = controllerRoot.getSubTable("Buttons");
@@ -119,10 +121,5 @@ public class LogXboxController implements CompoundLogger {
   @Override
   public LogMode getLogMode() {
     return LogMode.NetworkOnly;
-  }
-
-  @Override
-  public Object getOperatingObject() {
-    return controller;
   }
 }

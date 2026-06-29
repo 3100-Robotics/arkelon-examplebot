@@ -19,9 +19,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.Shoot;
 import frc.robot.generated.TunerConstantsFake0621;
-import frc.robot.logging.LogCTREDrivetrain;
 import frc.robot.logging.LogMode;
 import frc.robot.logging.RootLogging;
+import frc.robot.logging.compoundlogger.*;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
 import frc.robot.subsystems.Hood;
@@ -78,7 +78,7 @@ public final class RobotContainer {
                 configurator
                     .setConfigureCallback(this::configureLogging)
                     .addHook(DriverStation::isFMSAttached))
-        .initializeLogging(); // Must be the final call in the chain
+        .initializeLogging(); // Must be the final call in the configuration chain
   }
 
   public void registerPeriodics(Robot robot) {
@@ -86,20 +86,15 @@ public final class RobotContainer {
   }
 
   private void configureLogging() {
-    LogMode silentOnField = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
+    LogMode noNetOnField = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
 
-    RootLogging.getInstance()
-        // Log Controllers
-        .addXboxControllerLogger("evenCtl", evenController)
-        // Log Subsystems
-        .addSubsystemCommandLogger("Subsystems", LogMode.Both, drivetrain)
-        .addSubsystemCommandLogger("Subsystems", LogMode.Both, flywheels)
-        .addSubsystemCommandLogger("Subsystems", LogMode.Both, hood)
-        .addSubsystemCommandLogger("Subsystems", LogMode.Both, indexer)
-        .addSubsystemCommandLogger("Subsystems", LogMode.Both, intakePivot)
-        .addSubsystemCommandLogger("Subsystems", LogMode.Both, intakeRoller)
-        .addCompoundLogger(
-            new LogCTREDrivetrain("Subsystems/" + drivetrain.getName(), LogMode.Both, drivetrain));
+    var rootTable = RootLogging.getInstance().getRootTable();
+    rootTable
+        .getSubTable("TestSubTable")
+        .addBooleanLogger("Test2", noNetOnField, evenController.y()::getAsBoolean)
+        .addCompoundLogger(new LogSubsystemCommands("Drivetrain", noNetOnField, drivetrain))
+        .addCompoundLogger(new LogCTREDrivetrain("dtb", noNetOnField, drivetrain))
+        .addCompoundLogger(new LogXboxController("evenCtl", evenController));
   }
 
   private void configureBindings() {

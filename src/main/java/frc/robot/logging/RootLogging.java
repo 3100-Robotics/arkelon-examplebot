@@ -7,23 +7,25 @@ import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.logging.compoundlogger.CompoundLogger;
 import frc.robot.logging.configuration.Configurator;
+import frc.robot.logging.primarylogger.PrimaryBooleanLog;
+import frc.robot.logging.primarylogger.PrimaryDoubleLog;
+import frc.robot.logging.primarylogger.PrimaryIntegerLog;
+import frc.robot.logging.primarylogger.PrimaryLogPublisher;
+import frc.robot.logging.primarylogger.PrimaryPoseLog;
+import frc.robot.logging.primarylogger.PrimaryStringLog;
+import frc.robot.logging.primarylogger.PrimarySwerveStateLog;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class RootLogging {
-  public static class LoggerSetDescriptor {}
-
   public static class SourceUpdateMap<T extends PrimaryLogPublisher<E, ?, ?>, E> {
     public final T log;
     public final Supplier<E> newValue;
     public final RootLogging root;
-    public LogMode devLogMode;
 
     public SourceUpdateMap(RootLogging root, T log, Supplier<E> newValue) {
       this.root = root;
@@ -50,7 +52,9 @@ public class RootLogging {
   private final List<SourceUpdateMap<PrimarySwerveStateLog, SwerveModuleState[]>> swerveStateLogs =
       new ArrayList<>();
 
-  private final HashMap<Object, CompoundLogger> compoundLoggers = new HashMap<>();
+  private final List<CompoundLogger> compoundLoggers = new ArrayList<>();
+
+  private final Table rootTable = new Table("", this);
 
   private RootLogging() {}
 
@@ -65,6 +69,10 @@ public class RootLogging {
     DataLogManager.logNetworkTables(false);
 
     configurator.getConfiguratorCallback().run();
+  }
+
+  public Table getRootTable() {
+    return rootTable;
   }
 
   public RootLogging addStringLogger(String key, LogMode mode, Supplier<String> stringGetter) {
@@ -123,23 +131,7 @@ public class RootLogging {
   }
 
   public RootLogging addCompoundLogger(CompoundLogger compoundLogger) {
-    compoundLoggers.put(compoundLogger.getName(), compoundLogger);
-    return this;
-  }
-
-  public RootLogging addCompoundLogger(String key, CompoundLogger compoundLogger) {
-    compoundLoggers.put(key, compoundLogger);
-    return this;
-  }
-
-  // Special Compounds
-  public RootLogging addSubsystemCommandLogger(String logRoot, LogMode mode, Subsystem subsystem) {
-    addCompoundLogger(new LogSubsystemCommands(logRoot, mode, subsystem));
-    return this;
-  }
-
-  public RootLogging addXboxControllerLogger(String name, CommandXboxController controller) {
-    addCompoundLogger(name, new LogXboxController(name, controller));
+    compoundLoggers.add(compoundLogger);
     return this;
   }
 
@@ -195,7 +187,7 @@ public class RootLogging {
       srcUpdateMap.log.update(srcUpdateMap.newValue.get());
     }
 
-    for (CompoundLogger compoundLogger : compoundLoggers.values()) {
+    for (CompoundLogger compoundLogger : compoundLoggers) {
       compoundLogger.update();
     }
   }

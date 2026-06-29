@@ -1,10 +1,11 @@
-package frc.robot.logging;
+package frc.robot.logging.primarylogger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.StructLogEntry;
+import frc.robot.logging.LogMode;
 
 public final class PrimaryPoseLog
     extends PrimaryLogPublisher<Pose2d, StructLogEntry<Pose2d>, StructPublisher<Pose2d>> {

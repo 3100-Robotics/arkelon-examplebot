@@ -1,9 +1,10 @@
-package frc.robot.logging;
+package frc.robot.logging.primarylogger;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
+import frc.robot.logging.LogMode;
 
 public final class PrimaryDoubleLog
     extends PrimaryLogPublisher<Double, DoubleLogEntry, DoublePublisher> {

@@ -1,32 +1,32 @@
-package frc.robot.logging;
+package frc.robot.logging.compoundlogger;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+import frc.robot.logging.LogMode;
+import frc.robot.logging.OneShot;
+import frc.robot.logging.RootLogging;
 
 public class LogCTREDrivetrain implements CompoundLogger {
-
   private final SwerveDrivetrain<?, ?, ?> drivetrain;
   private final LogMode logMode;
+  private final String name;
 
-  private final String logRootSwerve;
-  private final String logRootPose;
-
-  public LogCTREDrivetrain(String logRoot, LogMode logMode, SwerveDrivetrain<?, ?, ?> drivetrain) {
+  public LogCTREDrivetrain(String name, LogMode logMode, SwerveDrivetrain<?, ?, ?> drivetrain) {
+    this.name = name;
     this.drivetrain = drivetrain;
     this.logMode = logMode;
-    this.logRootSwerve = logRoot + "/Swerve/";
-    this.logRootPose = logRoot + "/Pose/";
+  }
 
-    OneShot.setString(logRootSwerve + ".type", "SwerveDrive");
+  @Override
+  public void initialize(String parentTable) {
+    String logRootSwerve = parentTable + name + "/Swerve/";
+    String logRootPose = parentTable + name + "/Pose/";
+
+    // OneShot.setString(logRootSwerve + ".type", "SwerveDrive");
     OneShot.setString(logRootPose + ".type", "Field2d");
 
     RootLogging.getInstance()
         .addPoseLogger(logRootPose + "Robot", logMode, () -> drivetrain.getState().Pose)
         .addSwerveStateLogger(logRootSwerve, logMode, () -> drivetrain.getState().ModuleStates);
-  }
-
-  @Override
-  public Object getOperatingObject() {
-    return drivetrain;
   }
 
   @Override

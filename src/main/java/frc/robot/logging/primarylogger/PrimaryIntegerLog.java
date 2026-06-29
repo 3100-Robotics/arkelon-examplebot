@@ -1,9 +1,10 @@
-package frc.robot.logging;
+package frc.robot.logging.primarylogger;
 
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
+import frc.robot.logging.LogMode;
 
 public final class PrimaryIntegerLog
     extends PrimaryLogPublisher<Integer, IntegerLogEntry, IntegerPublisher> {

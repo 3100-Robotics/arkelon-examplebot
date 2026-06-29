@@ -1,10 +1,11 @@
-package frc.robot.logging;
+package frc.robot.logging.primarylogger;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
+import frc.robot.logging.LogMode;
 
 public final class PrimarySwerveStateLog
     extends PrimaryLogPublisher<
