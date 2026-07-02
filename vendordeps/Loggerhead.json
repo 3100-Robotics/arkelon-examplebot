@@ -1,0 +1,20 @@
+{
+    "fileName": "Loggerhead.json",
+    "name": "Loggerhead",
+    "version": "0.0.3",
+    "frcYear": "2026",
+    "uuid": "c183f631-5a34-4a10-95c3-267b84b91486",
+    "mavenUrls": [
+        "file:///C:/Users/even/Downloads/vendor-template-2026/vendor-template-2026/build/repos/releases"
+    ],
+    "jsonUrl": "file:///C:/Users/even/Downloads/vendor-template-2026/vendor-template-2026/build/repos/Loggerhead.json",
+    "javaDependencies": [
+        {
+            "groupId": "com.team3100.loggerhead",
+            "artifactId": "Loggerhead-java",
+            "version": "0.0.3"
+        }
+    ],
+    "jniDependencies": [],
+    "cppDependencies": []
+}

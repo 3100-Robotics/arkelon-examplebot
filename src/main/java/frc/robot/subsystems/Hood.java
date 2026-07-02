@@ -3,17 +3,17 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.team3100.loggerhead.LogMode;
+import com.team3100.loggerhead.Loggable;
+import com.team3100.loggerhead.Loggerhead;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.logging.GenericLoggable;
-import frc.robot.logging.LogMode;
-import frc.robot.logging.RootLogging;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
-public class Hood implements Subsystem, GenericLoggable {
+public class Hood implements Subsystem, Loggable {
   // Define vendor motors
   private final TalonFX rawMotor = new TalonFX(Constants.CANIDs.Shooter.motorHood);
 
@@ -43,8 +43,8 @@ public class Hood implements Subsystem, GenericLoggable {
   }
 
   @Override
-  public void setupLogging(String subsystemRoot, LogMode logMode, RootLogging rootLogging) {
-    rootLogging.addDoubleLogger(
+  public void setupLogging(String subsystemRoot, LogMode logMode, Loggerhead loggerhead) {
+    loggerhead.addDoubleLogger(
         subsystemRoot + "hoodAngle", logMode, () -> motor.getMechanismPosition().in(Degrees));
   }
 }

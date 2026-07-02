@@ -7,6 +7,11 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
+import com.team3100.loggerhead.LogMode;
+import com.team3100.loggerhead.Loggerhead;
+import com.team3100.loggerhead.compoundlogger.LogCTREDrivetrain;
+import com.team3100.loggerhead.compoundlogger.LogNetworkXboxController;
+import com.team3100.loggerhead.compoundlogger.LogSubsystemCommands;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -19,9 +24,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.Shoot;
 import frc.robot.generated.TunerConstantsFake0621;
-import frc.robot.logging.LogMode;
-import frc.robot.logging.RootLogging;
-import frc.robot.logging.compoundlogger.*;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
 import frc.robot.subsystems.Hood;
@@ -72,8 +74,8 @@ public final class RobotContainer {
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     configureBindings();
-    
-    RootLogging.getInstance()
+
+    Loggerhead.getInstance()
         .applyToConfigurator(
             configurator ->
                 configurator
@@ -83,13 +85,13 @@ public final class RobotContainer {
   }
 
   public void registerPeriodics(Robot robot) {
-    robot.addPeriodic(RootLogging.getInstance()::update, 0.02);
+    robot.addPeriodic(Loggerhead.getInstance()::update, 0.02);
   }
 
   private void configureLogging() {
     LogMode noNetOnField = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
 
-    var rootTable = RootLogging.getInstance().getRootTable();
+    var rootTable = Loggerhead.getInstance().getRootTable();
     rootTable
         .getSubTable("TestSubTable")
         .addBooleanLogger("Test2", noNetOnField, evenController.y()::getAsBoolean)
@@ -100,7 +102,7 @@ public final class RobotContainer {
 
   private void configureBindings() {
     evenController.a().whileTrue(new Shoot(flywheels, hood, indexer, shotMap));
-    evenController.b().onTrue(Commands.runOnce(() -> RootLogging.getInstance().cleanLoggers()));
+    evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
     evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
     drivetrain.setDefaultCommand(
         new DriveTeleop(

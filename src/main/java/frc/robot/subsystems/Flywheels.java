@@ -2,17 +2,17 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.team3100.loggerhead.LogMode;
+import com.team3100.loggerhead.Loggable;
+import com.team3100.loggerhead.Loggerhead;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.logging.GenericLoggable;
-import frc.robot.logging.LogMode;
-import frc.robot.logging.RootLogging;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
 
-public class Flywheels implements Subsystem, GenericLoggable {
+public class Flywheels implements Subsystem, Loggable {
   // Define vendor motors
   private final SparkMax rawMotorLeftFlywheel =
       new SparkMax(Constants.CANIDs.Shooter.motorLeftFlywheel, MotorType.kBrushless);
@@ -54,5 +54,5 @@ public class Flywheels implements Subsystem, GenericLoggable {
   }
 
   @Override
-  public void setupLogging(String subsystemRoot, LogMode logMode, RootLogging rootLogging) {}
+  public void setupLogging(String subsystemRoot, LogMode logMode, Loggerhead loggerhead) {}
 }
