@@ -1,10 +1,13 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.team3100.loggerhead.LogMode;
 import com.team3100.loggerhead.Loggable;
 import com.team3100.loggerhead.Loggerhead;
+import com.team3100.loggerhead.Table;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
@@ -54,5 +57,11 @@ public class Flywheels implements Subsystem, Loggable {
   }
 
   @Override
-  public void setupLogging(String subsystemRoot, LogMode logMode, Loggerhead loggerhead) {}
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    parentTable
+        .addDoubleLogger(
+            "Left velocity", logMode, () -> motorLeftFlywheel.getMechanismVelocity().in(RPM))
+        .addDoubleLogger(
+            "Right velocity", logMode, () -> motorRightFlywheel.getMechanismVelocity().in(RPM));
+  }
 }

@@ -173,6 +173,9 @@ networktables.json
 simgui.json
 *-window.json
 
+# DataLogTool
+.DataLogTool/
+
 # Simulation data log directory
 logs/
 

@@ -47,8 +47,6 @@ public class Constants {
   // CAN Ids all go together instead of being in thier specific superstructure sections [LTPS
   // TODO]
   public static interface CANIDs {
-    public interface Drivetrain {}
-
     public interface Shooter {
       int motorHood = 50;
       int motorLeftFlywheel = 51;

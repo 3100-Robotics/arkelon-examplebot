@@ -98,6 +98,11 @@ public final class RobotContainer {
         .addCompoundLogger(new LogSubsystemCommands("Drivetrain", noNetOnField, drivetrain))
         .addCompoundLogger(new LogCTREDrivetrain("dtb", noNetOnField, drivetrain))
         .addCompoundLogger(new LogNetworkXboxController("evenCtl", evenController));
+    rootTable
+        .getSubTable("OtherSubTable")
+        .addLoggable(flywheels, noNetOnField)
+        .addLoggableUnder("Texas", flywheels, noNetOnField);
+    ;
   }
 
   private void configureBindings() {

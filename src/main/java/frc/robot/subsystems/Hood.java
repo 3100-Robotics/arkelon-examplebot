@@ -6,6 +6,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.team3100.loggerhead.LogMode;
 import com.team3100.loggerhead.Loggable;
 import com.team3100.loggerhead.Loggerhead;
+import com.team3100.loggerhead.Table;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
@@ -43,8 +44,8 @@ public class Hood implements Subsystem, Loggable {
   }
 
   @Override
-  public void setupLogging(String subsystemRoot, LogMode logMode, Loggerhead loggerhead) {
-    loggerhead.addDoubleLogger(
-        subsystemRoot + "hoodAngle", logMode, () -> motor.getMechanismPosition().in(Degrees));
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    parentTable.addDoubleLogger(
+        "hoodAngle", logMode, () -> motor.getMechanismPosition().in(Degrees));
   }
 }
