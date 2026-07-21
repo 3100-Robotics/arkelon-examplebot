@@ -7,11 +7,11 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
-import com.team3100.loggerhead.LogMode;
-import com.team3100.loggerhead.Loggerhead;
-import com.team3100.loggerhead.compoundlogger.LogCTREDrivetrain;
-import com.team3100.loggerhead.compoundlogger.LogNetworkXboxController;
-import com.team3100.loggerhead.compoundlogger.LogSubsystemCommands;
+import com.sbdc.loggerhead.LogMode;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.compoundlogger.LogCTREDrivetrain;
+import com.sbdc.loggerhead.compoundlogger.LogNetworkXboxController;
+import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;

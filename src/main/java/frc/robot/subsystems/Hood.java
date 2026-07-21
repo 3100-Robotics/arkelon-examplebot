@@ -3,10 +3,10 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.team3100.loggerhead.LogMode;
-import com.team3100.loggerhead.Loggable;
-import com.team3100.loggerhead.Loggerhead;
-import com.team3100.loggerhead.Table;
+import com.sbdc.loggerhead.LogMode;
+import com.sbdc.loggerhead.Loggable;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.Table;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
