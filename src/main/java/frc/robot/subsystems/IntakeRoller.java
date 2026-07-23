@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
@@ -11,8 +10,6 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class IntakeRoller extends SubsystemBase {
-  interface Const extends IntakeConstants {} // TODO: This pattern may be really bad?
-
   // Define vendor motors
   private final SparkMax rawMotor =
       new SparkMax(Constants.CANIDs.Intake.motorRoller, MotorType.kBrushless);
@@ -20,7 +17,9 @@ public class IntakeRoller extends SubsystemBase {
   // Define SmartMotorControllers
   private final SmartMotorController motor =
       new SparkWrapper(
-          rawMotor, Const.pivotMotorPhysical, Const.rollerMotorConfig.withSubsystem(this));
+          rawMotor,
+          IntakeConstants.pivotMotorPhysical,
+          IntakeConstants.rollerMotorConfig.withSubsystem(this));
 
   // Define state set command
   public void setState(IntakeRollerTarget state) {
@@ -39,7 +38,6 @@ public class IntakeRoller extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putData(this);
     motor.updateTelemetry();
   }
 

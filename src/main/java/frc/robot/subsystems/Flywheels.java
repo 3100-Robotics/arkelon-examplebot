@@ -1,18 +1,21 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.sbdc.loggerhead.LogMode;
+import com.sbdc.loggerhead.Loggable;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.Table;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
 
-public class Flywheels extends SubsystemBase {
-  interface Const extends ShooterConstants {}
-
+public class Flywheels implements Subsystem, Loggable {
   // Define vendor motors
   private final SparkMax rawMotorLeftFlywheel =
       new SparkMax(Constants.CANIDs.Shooter.motorLeftFlywheel, MotorType.kBrushless);
@@ -23,13 +26,13 @@ public class Flywheels extends SubsystemBase {
   private final SmartMotorController motorLeftFlywheel =
       new SparkWrapper(
           rawMotorLeftFlywheel,
-          Const.leftFlywheelMotorPhysical,
-          Const.leftFlywheelMotorConfig.withSubsystem(this));
+          ShooterConstants.leftFlywheelMotorPhysical,
+          ShooterConstants.leftFlywheelMotorConfig.withSubsystem(this));
   private final SmartMotorController motorRightFlywheel =
       new SparkWrapper(
           rawMotorRightFlywheel,
-          Const.rightFlywheelMotorPhysical,
-          Const.rightFlywheelMotorConfig.withSubsystem(this));
+          ShooterConstants.rightFlywheelMotorPhysical,
+          ShooterConstants.rightFlywheelMotorConfig.withSubsystem(this));
 
   public void setSpeed(AngularVelocity speed) {
     motorLeftFlywheel.setVelocity(speed);
@@ -43,7 +46,6 @@ public class Flywheels extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putData(this);
     motorLeftFlywheel.updateTelemetry();
     motorRightFlywheel.updateTelemetry();
   }
@@ -52,5 +54,14 @@ public class Flywheels extends SubsystemBase {
   public void simulationPeriodic() {
     motorLeftFlywheel.simIterate();
     motorRightFlywheel.simIterate();
+  }
+
+  @Override
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    parentTable
+        .addDoubleLogger(
+            "Left velocity", logMode, () -> motorLeftFlywheel.getMechanismVelocity().in(RPM))
+        .addDoubleLogger(
+            "Right velocity", logMode, () -> motorRightFlywheel.getMechanismVelocity().in(RPM));
   }
 }

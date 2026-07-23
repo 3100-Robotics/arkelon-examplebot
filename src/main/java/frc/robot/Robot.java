@@ -21,6 +21,7 @@ public class Robot extends TimedRobot {
 
   private Robot() {
     robotContainer = RobotContainer.getInstance();
+    robotContainer.registerPeriodics(this);
   }
 
   @Override

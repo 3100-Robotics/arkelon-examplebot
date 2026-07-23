@@ -7,22 +7,31 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
+import com.sbdc.loggerhead.LogMode;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.compoundlogger.LogCTREDrivetrain;
+import com.sbdc.loggerhead.compoundlogger.LogNetworkXboxController;
+import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.Shoot;
+import frc.robot.generated.TunerConstantsFake0621;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
 
-public class RobotContainer {
+public final class RobotContainer {
   private static final RobotContainer INSTANCE = new RobotContainer();
 
   public static RobotContainer getInstance() {
@@ -50,7 +59,9 @@ public class RobotContainer {
       };
 
   // Subsystems
-  private final Flywheels flywheels = new Flywheels();
+  private final Drivetrain drivetrain = TunerConstantsFake0621.createDrivetrain();
+
+  public final Flywheels flywheels = new Flywheels();
   private final Hood hood = new Hood();
 
   private final Indexer indexer = new Indexer();
@@ -62,20 +73,49 @@ public class RobotContainer {
 
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
-    Logging.getInstance();
     configureBindings();
+
+    Loggerhead.getInstance()
+        .applyToConfigurator(
+            configurator ->
+                configurator
+                    .setConfigureCallback(this::configureLogging)
+                    .addHook(DriverStation::isFMSAttached))
+        .initializeLogging(); // Must be the final call in the configuration chain
+  }
+
+  public void registerPeriodics(Robot robot) {
+    robot.addPeriodic(Loggerhead.getInstance()::update, 0.02);
+  }
+
+  private void configureLogging() {
+    LogMode noNetOnField = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
+
+    var rootTable = Loggerhead.getInstance().getRootTable();
+    rootTable
+        .getSubTable("TestSubTable")
+        .addBooleanLogger("Test2", noNetOnField, evenController.y()::getAsBoolean)
+        .addCompoundLogger(new LogSubsystemCommands("Drivetrain", noNetOnField, drivetrain))
+        .addCompoundLogger(new LogCTREDrivetrain("dtb", noNetOnField, drivetrain))
+        .addCompoundLogger(new LogNetworkXboxController("evenCtl", evenController));
+    rootTable
+        .getSubTable("OtherSubTable")
+        .addLoggable(flywheels, noNetOnField)
+        .addLoggableUnder("Texas", flywheels, noNetOnField);
+    ;
   }
 
   private void configureBindings() {
-    // evenController.a().whileTrue(Commands.print("A"));
-    // evenController.b().whileTrue(Commands.print("B"));
-    // evenController.x().whileTrue(Commands.print("X"));
-    // evenController.y().whileTrue(Commands.print("Y"));
-    // evenController.leftBumper().whileTrue(Commands.print("LB"));
-    // evenController.rightBumper().whileTrue(Commands.print("RB"));
-    // evenController.leftStick().whileTrue(Commands.print("LSTCK"));
-    // evenController.rightStick().whileTrue(Commands.print("RSTCK"));
     evenController.a().whileTrue(new Shoot(flywheels, hood, indexer, shotMap));
+    evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
+    evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
+    drivetrain.setDefaultCommand(
+        new DriveTeleop(
+            drivetrain,
+            evenController::getLeftX,
+            evenController::getLeftY,
+            evenController::getRightX,
+            evenController::getRightTriggerAxis));
   }
 
   public Command getAutonomousCommand() {

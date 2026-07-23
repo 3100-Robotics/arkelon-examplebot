@@ -10,8 +10,6 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class IntakePivot extends SubsystemBase {
-  interface Const extends IntakeConstants {}
-
   // Define any special variables to track the current state of the subsystem
   private IntakePivotTarget state =
       IntakePivotTarget.Low; // TODO: Extratc out the default to constants
@@ -22,7 +20,9 @@ public class IntakePivot extends SubsystemBase {
   // Define SmartMotorControllers
   private final SmartMotorController motor =
       new TalonFXWrapper(
-          rawMotor, Const.pivotMotorPhysical, Const.pivotMotorConfig.withSubsystem(this));
+          rawMotor,
+          IntakeConstants.pivotMotorPhysical,
+          IntakeConstants.pivotMotorConfig.withSubsystem(this));
 
   public void setState(IntakePivotTarget state) {
     this.state = state;
@@ -40,7 +40,6 @@ public class IntakePivot extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putData(this);
     SmartDashboard.putString(getName() + "/state", state.toString());
     motor.updateTelemetry();
   }
