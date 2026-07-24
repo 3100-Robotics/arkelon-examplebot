@@ -94,7 +94,8 @@ public final class RobotContainer {
     LogMode noNetOnField = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
 
     var rootTable = Loggerhead.getInstance().getRootTable();
-    rootTable.addCompoundLogger(new LogPowerDistribution(noNetOnField, pdh));
+    rootTable.getSubTable("PDH").addCompoundLogger(new LogPowerDistribution(noNetOnField, pdh));
+    
     // rootTable
     //     .getSubTable("TestSubTable")
     //     .addBooleanLogger("Test2", noNetOnField, evenController.y()::getAsBoolean)
