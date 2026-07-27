@@ -3,8 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.constants.IntakeConstants;
 import frc.robot.Targets.IntakeRollerTarget;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
@@ -12,7 +11,7 @@ import yams.motorcontrollers.local.SparkWrapper;
 public class IntakeRoller extends SubsystemBase {
   // Define vendor motors
   private final SparkMax rawMotor =
-      new SparkMax(Constants.CANIDs.Intake.motorRoller, MotorType.kBrushless);
+      new SparkMax(IntakeConstants.motorRollerCanID, MotorType.kBrushless);
 
   // Define SmartMotorControllers
   private final SmartMotorController motor =

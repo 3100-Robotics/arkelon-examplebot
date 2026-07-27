@@ -9,14 +9,13 @@ import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.Table;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.Constants;
-import frc.robot.Constants.ShooterConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.remote.TalonFXWrapper;
+import frc.robot.constants.ShooterConstants;
 
 public class Hood implements Subsystem, Loggable {
   // Define vendor motors
-  private final TalonFX rawMotor = new TalonFX(Constants.CANIDs.Shooter.motorHood);
+  private final TalonFX rawMotor = new TalonFX(ShooterConstants.motorHoodCanID);
 
   // Define SmartMotorControllers
   private final SmartMotorController motor =

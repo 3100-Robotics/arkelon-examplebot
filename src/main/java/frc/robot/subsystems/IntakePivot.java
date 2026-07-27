@@ -3,8 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.constants.IntakeConstants;
 import frc.robot.Targets.IntakePivotTarget;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.remote.TalonFXWrapper;
@@ -15,7 +14,7 @@ public class IntakePivot extends SubsystemBase {
       IntakePivotTarget.Low; // TODO: Extratc out the default to constants
 
   // Define vendor motors
-  private final TalonFX rawMotor = new TalonFX(Constants.CANIDs.Intake.motorPivot);
+  private final TalonFX rawMotor = new TalonFX(IntakeConstants.motorPivotCanID);
 
   // Define SmartMotorControllers
   private final SmartMotorController motor =

@@ -10,17 +10,16 @@ import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.Table;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.Constants;
-import frc.robot.Constants.ShooterConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
+import frc.robot.constants.ShooterConstants;
 
 public class Flywheels implements Subsystem, Loggable {
   // Define vendor motors
   private final SparkMax rawMotorLeftFlywheel =
-      new SparkMax(Constants.CANIDs.Shooter.motorLeftFlywheel, MotorType.kBrushless);
+      new SparkMax(ShooterConstants.motorLeftFlywheelCanID, MotorType.kBrushless);
   private final SparkMax rawMotorRightFlywheel =
-      new SparkMax(Constants.CANIDs.Shooter.motorRightFlywheel, MotorType.kBrushless);
+      new SparkMax(ShooterConstants.motorRightFlywheelCanID, MotorType.kBrushless);
 
   // Define SmartMotorControllers
   private final SmartMotorController motorLeftFlywheel =
