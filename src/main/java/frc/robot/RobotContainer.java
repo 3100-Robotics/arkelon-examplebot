@@ -11,11 +11,14 @@ import com.sbdc.loggerhead.LogMode;
 import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.compoundlogger.LogCTREDrivetrain;
 import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
+import com.sbdc.loggerhead.compoundlogger.LogPowerDistribution;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -72,6 +75,8 @@ public final class RobotContainer {
 
   public final CommandXboxController evenController = new CommandXboxController(0);
 
+  private final PowerDistribution pdh = new PowerDistribution(14, ModuleType.kRev);
+
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     configureBindings();
@@ -124,6 +129,8 @@ public final class RobotContainer {
         .getSubTable("IntakeRoller")
         .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, intakeRoller))
         .addLoggable(intakeRoller, noNetOnField);
+
+    rootTable.getSubTable("PDH").addCompoundLogger(new LogPowerDistribution(noNetOnField, pdh));
   }
 
   private void configureBindings() {
