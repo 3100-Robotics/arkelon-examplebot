@@ -5,8 +5,12 @@ import static edu.wpi.first.units.Units.RPM;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.sbdc.loggerhead.LightSubsystem;
+import com.sbdc.loggerhead.LogMode;
+import com.sbdc.loggerhead.Loggable;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.Table;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.IndexerConstants;
 import frc.robot.Targets.IndexerTarget;
@@ -14,13 +18,15 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
-public class Indexer extends SubsystemBase {
+public class Indexer extends LightSubsystem implements Loggable {
   // Define vendor motors
   private final TalonFX rawMotorLow = new TalonFX(Constants.CANIDs.Indexer.motorLow);
   private final SparkMax rawMotorMiddle =
       new SparkMax(Constants.CANIDs.Indexer.motorMiddle, MotorType.kBrushless);
   private final SparkMax rawMotorHigh =
       new SparkMax(Constants.CANIDs.Indexer.motorHigh, MotorType.kBrushless);
+
+  private IndexerTarget target = IndexerTarget.Off;
 
   // Define SmartMotorControllers
   private final SmartMotorController motorLow =
@@ -41,6 +47,7 @@ public class Indexer extends SubsystemBase {
 
   // Define state set command
   public void setState(IndexerTarget state) {
+    this.target = state;
     switch (state) {
       case Forward:
       case Reverse:
@@ -61,8 +68,6 @@ public class Indexer extends SubsystemBase {
   // Define periodics
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("indexerLow", motorLow.getMechanismVelocity().in(RPM));
-
     motorLow.updateTelemetry();
     motorMid.updateTelemetry();
     motorHigh.updateTelemetry();
@@ -73,5 +78,15 @@ public class Indexer extends SubsystemBase {
     motorLow.simIterate();
     motorMid.simIterate();
     motorHigh.simIterate();
+  }
+
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    parentTable.addDoubleLogger(
+        "lowMechansimRPM", logMode, () -> motorLow.getMechanismVelocity().in(RPM));
+    parentTable.addDoubleLogger(
+        "midMechansimRPM", logMode, () -> motorMid.getMechanismVelocity().in(RPM));
+    parentTable.addDoubleLogger(
+        "highMechansimRPM", logMode, () -> motorHigh.getMechanismVelocity().in(RPM));
+    parentTable.addStringLogger("target", logMode, () -> target.toString());
   }
 }

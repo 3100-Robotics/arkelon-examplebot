@@ -10,7 +10,6 @@ import static edu.wpi.first.units.Units.RPM;
 import com.sbdc.loggerhead.LogMode;
 import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.compoundlogger.LogCTREDrivetrain;
-import com.sbdc.loggerhead.compoundlogger.LogNetworkXboxController;
 import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.units.measure.Angle;
@@ -22,7 +21,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveTeleop;
+import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.generated.TunerConstantsFake0621;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
@@ -92,17 +93,37 @@ public final class RobotContainer {
     LogMode noNetOnField = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
 
     var rootTable = Loggerhead.getInstance().getRootTable();
-    rootTable
-        .getSubTable("TestSubTable")
-        .addBooleanLogger("Test2", noNetOnField, evenController.y()::getAsBoolean)
-        .addCompoundLogger(new LogSubsystemCommands("Drivetrain", noNetOnField, drivetrain))
-        .addCompoundLogger(new LogCTREDrivetrain("dtb", noNetOnField, drivetrain))
-        .addCompoundLogger(new LogNetworkXboxController("evenCtl", evenController));
-    rootTable
-        .getSubTable("OtherSubTable")
-        .addLoggable(flywheels, noNetOnField)
-        .addLoggableUnder("Texas", flywheels, noNetOnField);
-    ;
+    var subsystemTable = rootTable.getSubTable("Subsystems");
+    subsystemTable
+        .getSubTable("Drivetrain")
+        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, drivetrain))
+        .addCompoundLogger(new LogCTREDrivetrain("Swerve", noNetOnField, drivetrain))
+        .addLoggable(drivetrain, noNetOnField);
+
+    subsystemTable
+        .getSubTable("Hood")
+        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, hood))
+        .addLoggable(hood, noNetOnField);
+
+    subsystemTable
+        .getSubTable("Flywheels")
+        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, flywheels))
+        .addLoggable(flywheels, noNetOnField);
+
+    subsystemTable
+        .getSubTable("Indexer")
+        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, indexer))
+        .addLoggable(indexer, noNetOnField);
+
+    subsystemTable
+        .getSubTable("IntakePivot")
+        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, intakePivot))
+        .addLoggable(intakePivot, noNetOnField);
+
+    subsystemTable
+        .getSubTable("IntakeRoller")
+        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, intakeRoller))
+        .addLoggable(intakeRoller, noNetOnField);
   }
 
   private void configureBindings() {
@@ -119,6 +140,10 @@ public final class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    // return Commands.print("No autonomous command configured");
+    return Commands.sequence(
+            new IndexerCommands.ReverseIndexer(indexer).withTimeout(2),
+            ShooterCommands.shooterDynamic(hood, flywheels, shotMap).withTimeout(3))
+        .withTimeout(5);
   }
 }
