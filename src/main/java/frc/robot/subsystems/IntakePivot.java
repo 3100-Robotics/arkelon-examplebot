@@ -1,10 +1,11 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.IntakeConstants;
 import frc.robot.Targets.IntakePivotTarget;
+import frc.robot.constants.IntakeConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
@@ -15,13 +16,17 @@ public class IntakePivot extends SubsystemBase {
 
   // Define vendor motors
   private final TalonFX rawMotor = new TalonFX(IntakeConstants.motorPivotCanID);
+  private final CANcoder rawEncoder = new CANcoder(IntakeConstants.encoderPivotCanID);
 
   // Define SmartMotorControllers
   private final SmartMotorController motor =
       new TalonFXWrapper(
           rawMotor,
           IntakeConstants.pivotMotorPhysical,
-          IntakeConstants.pivotMotorConfig.withSubsystem(this));
+          IntakeConstants.pivotMotorConfig
+              .clone()
+              .withExternalEncoder(rawEncoder)
+              .withSubsystem(this));
 
   public void setState(IntakePivotTarget state) {
     this.state = state;

@@ -10,9 +10,9 @@ import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.Table;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.constants.ShooterConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
-import frc.robot.constants.ShooterConstants;
 
 public class Flywheels implements Subsystem, Loggable {
   // Define vendor motors
