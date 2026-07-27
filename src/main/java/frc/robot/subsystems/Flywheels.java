@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkMax;
 import com.sbdc.loggerhead.LogMode;
 import com.sbdc.loggerhead.Loggable;
 import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.LightSubsystem;
 import com.sbdc.loggerhead.Table;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -14,7 +15,7 @@ import frc.robot.constants.ShooterConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
 
-public class Flywheels implements Subsystem, Loggable {
+public class Flywheels extends LightSubsystem implements Loggable {
   // Define vendor motors
   private final SparkMax rawMotorLeftFlywheel =
       new SparkMax(ShooterConstants.motorLeftFlywheelCanID, MotorType.kBrushless);
@@ -59,8 +60,8 @@ public class Flywheels implements Subsystem, Loggable {
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
     parentTable
         .addDoubleLogger(
-            "Left velocity", logMode, () -> motorLeftFlywheel.getMechanismVelocity().in(RPM))
+            "leftMechVelocity", logMode, () -> motorLeftFlywheel.getMechanismVelocity().in(RPM))
         .addDoubleLogger(
-            "Right velocity", logMode, () -> motorRightFlywheel.getMechanismVelocity().in(RPM));
+            "rightMechVelocity", logMode, () -> motorRightFlywheel.getMechanismVelocity().in(RPM));
   }
 }

@@ -1,18 +1,24 @@
 package frc.robot.subsystems;
 
+
 import com.ctre.phoenix6.hardware.CANcoder;
+import static edu.wpi.first.units.Units.RPM;
+
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.sbdc.loggerhead.LightSubsystem;
+import com.sbdc.loggerhead.LogMode;
+import com.sbdc.loggerhead.Loggable;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.Table;
 import frc.robot.Targets.IntakePivotTarget;
 import frc.robot.constants.IntakeConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
-public class IntakePivot extends SubsystemBase {
+public class IntakePivot extends LightSubsystem implements Loggable {
   // Define any special variables to track the current state of the subsystem
-  private IntakePivotTarget state =
-      IntakePivotTarget.Low; // TODO: Extratc out the default to constants
+  private IntakePivotTarget target =
+      IntakePivotTarget.Low; // TODO: Extract out the default to constants
 
   // Define vendor motors
   private final TalonFX rawMotor = new TalonFX(IntakeConstants.motorPivotCanID);
@@ -29,27 +35,28 @@ public class IntakePivot extends SubsystemBase {
               .withSubsystem(this));
 
   public void setState(IntakePivotTarget state) {
-    this.state = state;
-    motor.setPosition(this.state.angle);
+    this.target = state;
+    motor.setPosition(this.target.angle);
   }
 
   public IntakePivotTarget getState() {
-    return state;
+    return target;
   }
-
-  // @Override
-  // public void initSendable(SendableBuilder builder) {
-
-  // }
 
   @Override
   public void periodic() {
-    SmartDashboard.putString(getName() + "/state", state.toString());
     motor.updateTelemetry();
   }
 
   @Override
   public void simulationPeriodic() {
     motor.simIterate();
+  }
+
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    parentTable
+      .addDoubleLogger("rollerMechRPM", logMode, () -> motor.getMechanismVelocity().in(RPM))
+      .addStringLogger("state", logMode, target::toString)
+    ;
   }
 }

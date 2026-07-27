@@ -1,14 +1,22 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.sbdc.loggerhead.LightSubsystem;
+import com.sbdc.loggerhead.LogMode;
+import com.sbdc.loggerhead.Loggable;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.Table;
 import frc.robot.Targets.IntakeRollerTarget;
 import frc.robot.constants.IntakeConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;
 
-public class IntakeRoller extends SubsystemBase {
+public class IntakeRoller extends LightSubsystem implements Loggable {
+  private IntakeRollerTarget target = IntakeRollerTarget.Off;
+
   // Define vendor motors
   private final SparkMax rawMotor =
       new SparkMax(IntakeConstants.motorRollerCanID, MotorType.kBrushless);
@@ -22,6 +30,7 @@ public class IntakeRoller extends SubsystemBase {
 
   // Define state set command
   public void setState(IntakeRollerTarget state) {
+    this.target = state;
     switch (state) {
       case Forward:
       case Reverse:
@@ -43,5 +52,12 @@ public class IntakeRoller extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     motor.simIterate();
+  }
+
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    parentTable
+      .addDoubleLogger("rollerMechRPM", logMode, () -> motor.getMechanismVelocity().in(RPM))
+      .addStringLogger("state", logMode, target::toString)
+    ;
   }
 }
