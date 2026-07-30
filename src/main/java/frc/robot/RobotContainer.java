@@ -10,8 +10,12 @@ import static edu.wpi.first.units.Units.RPM;
 import com.sbdc.loggerhead.LogMode;
 import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.compoundlogger.LogCTREDrivetrain;
-import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
 import com.sbdc.loggerhead.compoundlogger.LogPowerDistribution;
+import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -34,6 +38,7 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
+import frc.robot.vision.PoseGetter;
 
 public final class RobotContainer {
   private static final RobotContainer INSTANCE = new RobotContainer();
@@ -73,6 +78,10 @@ public final class RobotContainer {
   private final IntakePivot intakePivot = new IntakePivot();
   private final IntakeRoller intakeRoller = new IntakeRoller();
 
+  // Misc
+  public final PoseGetter poseGetter =
+      new PoseGetter((Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {});
+
   public final CommandXboxController evenController = new CommandXboxController(0);
 
   private final PowerDistribution pdh = new PowerDistribution(14, ModuleType.kRev);
@@ -95,42 +104,47 @@ public final class RobotContainer {
   }
 
   private void configureLogging() {
-    LogMode noNetOnField = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
+    LogMode mainLogMode = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
+    mainLogMode = Robot.isReal() ? mainLogMode : LogMode.NetworkOnly;
 
     var rootTable = Loggerhead.getInstance().getRootTable();
+
+    var visionTable = rootTable.getSubTable("Vision");
+    visionTable.addLoggableUnder("PoseGetter", poseGetter, mainLogMode);
+
     var subsystemTable = rootTable.getSubTable("Subsystems");
     subsystemTable
         .getSubTable("Drivetrain")
-        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, drivetrain))
-        .addCompoundLogger(new LogCTREDrivetrain("Swerve", noNetOnField, drivetrain))
-        .addLoggable(drivetrain, noNetOnField);
+        .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, drivetrain))
+        .addCompoundLogger(new LogCTREDrivetrain("Swerve", mainLogMode, drivetrain))
+        .addLoggable(drivetrain, mainLogMode);
 
     subsystemTable
         .getSubTable("Hood")
-        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, hood))
-        .addLoggable(hood, noNetOnField);
+        .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, hood))
+        .addLoggable(hood, mainLogMode);
 
     subsystemTable
         .getSubTable("Flywheels")
-        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, flywheels))
-        .addLoggable(flywheels, noNetOnField);
+        .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, flywheels))
+        .addLoggable(flywheels, mainLogMode);
 
     subsystemTable
         .getSubTable("Indexer")
-        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, indexer))
-        .addLoggable(indexer, noNetOnField);
+        .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, indexer))
+        .addLoggable(indexer, mainLogMode);
 
     subsystemTable
         .getSubTable("IntakePivot")
-        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, intakePivot))
-        .addLoggable(intakePivot, noNetOnField);
+        .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, intakePivot))
+        .addLoggable(intakePivot, mainLogMode);
 
     subsystemTable
         .getSubTable("IntakeRoller")
-        .addCompoundLogger(new LogSubsystemCommands("Commands", noNetOnField, intakeRoller))
-        .addLoggable(intakeRoller, noNetOnField);
+        .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, intakeRoller))
+        .addLoggable(intakeRoller, mainLogMode);
 
-    rootTable.getSubTable("PDH").addCompoundLogger(new LogPowerDistribution(noNetOnField, pdh));
+    rootTable.getSubTable("PDH").addCompoundLogger(new LogPowerDistribution(mainLogMode, pdh));
   }
 
   private void configureBindings() {
