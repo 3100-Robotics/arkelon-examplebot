@@ -31,6 +31,7 @@ import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.ShooterCommands;
+import frc.robot.commands.intake.IntakeCommands;
 import frc.robot.generated.TunerConstantsFake0621;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
@@ -158,6 +159,10 @@ public final class RobotContainer {
             evenController::getLeftX,
             evenController::getRightX,
             evenController::getRightTriggerAxis));
+
+    evenController.rightTrigger().whileTrue(IntakeCommands.pivotHigh(intakePivot));
+    evenController.rightBumper().whileTrue(IntakeCommands.pivotMid(intakePivot));
+    evenController.leftBumper().whileTrue(IntakeCommands.pivotLow(intakePivot));
   }
 
   public Command getAutonomousCommand() {
