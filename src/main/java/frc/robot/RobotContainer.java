@@ -38,7 +38,7 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
-import frc.robot.vision.PoseGetter;
+import frc.robot.vision.MainVision;
 
 public final class RobotContainer {
   private static final RobotContainer INSTANCE = new RobotContainer();
@@ -79,8 +79,8 @@ public final class RobotContainer {
   private final IntakeRoller intakeRoller = new IntakeRoller();
 
   // Misc
-  public final PoseGetter poseGetter =
-      new PoseGetter((Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {});
+  public final MainVision poseGetter =
+      new MainVision((Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {});
 
   public final CommandXboxController evenController = new CommandXboxController(0);
 
@@ -154,8 +154,8 @@ public final class RobotContainer {
     drivetrain.setDefaultCommand(
         new DriveTeleop(
             drivetrain,
-            evenController::getLeftX,
             evenController::getLeftY,
+            evenController::getLeftX,
             evenController::getRightX,
             evenController::getRightTriggerAxis));
   }

@@ -30,7 +30,7 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class PoseGetter extends LightSubsystem implements Loggable {
+public class MainVision extends LightSubsystem implements Loggable {
   public static final AprilTagFieldLayout kTagLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
@@ -60,7 +60,7 @@ public class PoseGetter extends LightSubsystem implements Loggable {
    *     org.wpilib.math.estimator.SwerveDrivePoseEstimator}
    */
   @SuppressWarnings("unused")
-  public PoseGetter(EstimateConsumer estConsumer) {
+  public MainVision(EstimateConsumer estConsumer) {
     this.estConsumer = estConsumer;
     camera = new PhotonCamera(kCameraName);
     photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
@@ -209,16 +209,16 @@ public class PoseGetter extends LightSubsystem implements Loggable {
   }
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
-    parentTable.addStringLogger(
-        "stdDevs67",
-        logMode,
-        () -> {
-          if (getEstimationStdDevs() != null) return getEstimationStdDevs().toString();
-          else return "whoops";
-        });
-    parentTable.addStringLogger("stddevMode", logMode, () -> stdevMode);
-    parentTable.addDoubleLogger("avgDist", logMode, () -> avgDist);
-    parentTable.addStructLogger("poseRaw67", logMode, () -> intRawPose3d, Pose3d.struct);
+    // parentTable.addStringLogger(
+    //     "stdDevs67",
+    //     logMode,
+    //     () -> {
+    //       if (getEstimationStdDevs() != null) return getEstimationStdDevs().toString();
+    //       else return "whoops";
+    //     });
+    // parentTable.addStringLogger("stddevMode", logMode, () -> stdevMode);
+    // parentTable.addDoubleLogger("avgDist", logMode, () -> avgDist);
+    // parentTable.addStructLogger("poseRaw67", logMode, () -> intRawPose3d, Pose3d.struct);
   }
 
   @FunctionalInterface
