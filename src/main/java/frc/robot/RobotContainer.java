@@ -160,9 +160,9 @@ public final class RobotContainer {
             evenController::getRightX,
             evenController::getRightTriggerAxis));
 
-    evenController.rightTrigger().whileTrue(IntakeCommands.pivotHigh(intakePivot));
-    evenController.rightBumper().whileTrue(IntakeCommands.pivotMid(intakePivot));
-    evenController.leftBumper().whileTrue(IntakeCommands.pivotLow(intakePivot));
+    evenController.leftTrigger().whileTrue(IntakeCommands.pivotHigh(intakePivot));
+    evenController.leftBumper().whileTrue(IntakeCommands.pivotMidLowToggle(intakePivot));
+    evenController.rightBumper().whileTrue(IntakeCommands.rollerForward(intakeRoller));
   }
 
   public Command getAutonomousCommand() {

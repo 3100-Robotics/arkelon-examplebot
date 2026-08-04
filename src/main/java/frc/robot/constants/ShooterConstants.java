@@ -65,14 +65,14 @@ public interface ShooterConstants {
           // Gearing
           .withGearing(new MechanismGearing(GearBox.fromStages("48:12", "182:10")))
           // PID / FF
-          .withClosedLoopController(new PIDController(530, 0, 0))
-          .withFeedforward(new ArmFeedforward(140, 0, 0))
+          .withClosedLoopController(new PIDController(350, 0, 0))
+          .withFeedforward(new ArmFeedforward(700, 0, 0))
           // Sim PID / FF
           .withSimClosedLoopController(new PIDController(5, 0, 0))
           .withSimFeedforward(new ArmFeedforward(0, 0, 0))
           // Control mode
           .withControlMode(ControlMode.CLOSED_LOOP)
-          .withTelemetry("hoodMotor", TelemetryVerbosity.LOW)
+          .withTelemetry("hoodMotor", TelemetryVerbosity.HIGH)
           // Sim props
           .withMomentOfInertia(KilogramSquareMeters.of(0.0190245794))
           // Starting Position
@@ -100,7 +100,7 @@ public interface ShooterConstants {
           .withSimClosedLoopController(new PIDController(0.003, 0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.137))
           // Telemetry
-          .withTelemetry("leftFlywheelMotor", TelemetryVerbosity.LOW);
+          .withTelemetry("leftFlywheelMotor", TelemetryVerbosity.HIGH);
 
   SmartMotorControllerConfig rightFlywheelMotorConfig =
       baseFlywheelConfig
@@ -113,5 +113,5 @@ public interface ShooterConstants {
           .withSimClosedLoopController(new PIDController(0.003, 0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.1399))
           // Control mode
-          .withTelemetry("rightFLywheelMotor", TelemetryVerbosity.LOW);
+          .withTelemetry("rightFLywheelMotor", TelemetryVerbosity.HIGH);
 }

@@ -54,7 +54,7 @@ public interface IntakeConstants {
           // Direction / Current stuff
           .withMotorInverted(false)
           .withStatorCurrentLimit(Amps.of(80))
-          .withSupplyCurrentLimit(Amps.of(40))
+          // .withSupplyCurrentLimit(Amps.of(40))
           .withIdleMode(MotorMode.COAST)
           // Gearing
           .withGearing(1)

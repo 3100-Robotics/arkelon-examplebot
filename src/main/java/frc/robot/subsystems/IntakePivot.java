@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -54,7 +55,8 @@ public class IntakePivot extends LightSubsystem implements Loggable {
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
     parentTable
-        .addDoubleLogger("rollerMechRPM", logMode, () -> motor.getMechanismVelocity().in(RPM))
+        .addDoubleLogger("motorMechRPM", logMode, () -> motor.getMechanismVelocity().in(RPM))
+        .addDoubleLogger("pivotAngle", logMode, () -> motor.getMechanismPosition().in(Degrees))
         .addStringLogger("state", logMode, target::toString);
   }
 }
