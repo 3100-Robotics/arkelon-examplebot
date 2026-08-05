@@ -81,7 +81,9 @@ public final class RobotContainer {
 
   // Misc
   public final MainVision poseGetter =
-      new MainVision((Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {});
+      new MainVision(
+          (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {},
+          () -> drivetrain.getState().Pose);
 
   public final CommandXboxController evenController = new CommandXboxController(0);
 
