@@ -83,7 +83,10 @@ public final class RobotContainer {
   public final MainVision poseGetter =
       new MainVision(
           (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {},
-          () -> drivetrain.getState().Pose);
+          () ->
+              drivetrain.getState()
+                  .Pose // drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive::getSimulatedDriveTrainPose
+          );
 
   public final CommandXboxController evenController = new CommandXboxController(0);
 
@@ -148,6 +151,15 @@ public final class RobotContainer {
         .addLoggable(intakeRoller, mainLogMode);
 
     rootTable.getSubTable("PDH").addCompoundLogger(new LogPowerDistribution(mainLogMode, pdh));
+
+    rootTable
+        .getSubTable("SystemInfo")
+        .addDoubleLogger("looptime", LogMode.NetworkOnly, () -> Robot.getInstance().looptime / 1000)
+        .addIntegerLogger("overruns", LogMode.NetworkOnly, () -> Robot.getInstance().overruns)
+        .addDoubleLogger(
+            "timeSinceLastOverrun",
+            LogMode.NetworkOnly,
+            () -> Robot.getInstance().ilooptime / 1000000);
   }
 
   private void configureBindings() {

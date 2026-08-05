@@ -35,9 +35,7 @@ import java.util.Optional;
 public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem, Loggable {
   private static final double kSimLoopPeriod = 0.004; // 4 ms
   private Notifier m_simNotifier = null;
-  private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain = null;
-
-  private double m_lastSimTime;
+  public MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain = null;
 
   /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
   private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
