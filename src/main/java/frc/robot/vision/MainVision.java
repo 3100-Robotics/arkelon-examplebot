@@ -22,7 +22,6 @@ public class MainVision extends LightSubsystem implements Loggable {
   public static final AprilTagFieldLayout kTagLayout = VisionConstants.kTagLayout;
 
   // Simulation
-  // private PhotonCameraSim cameraSim;
   private VisionSystemSim visionSim;
   private Supplier<Pose2d> simDTGetter;
 
@@ -36,7 +35,9 @@ public class MainVision extends LightSubsystem implements Loggable {
   public MainVision(EstimateConsumer estConsumer, Supplier<Pose2d> simDTGetter) {
     this.simDTGetter = simDTGetter;
 
-    cameras.add(VisionConstants.CAM_EVAN);
+    // cameras.add(VisionConstants.CAM_EVAN);
+    cameras.add(VisionConstants.CAM_LEFT);
+    cameras.add(VisionConstants.CAM_RIGHT);
 
     if ((!Robot.isReal()) && VisionConstants.simulateCoproc) {
       visionSim = new VisionSystemSim("main");
@@ -47,10 +48,6 @@ public class MainVision extends LightSubsystem implements Loggable {
       }
     }
   }
-
-  // public void simulationPeriodic(Pose2d robotSimPose) {
-  //   visionSim.update(robotSimPose);
-  // }
 
   @Override
   public void periodic() {

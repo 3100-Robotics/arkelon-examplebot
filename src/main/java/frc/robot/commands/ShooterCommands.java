@@ -2,9 +2,9 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.ShotMap;
 import frc.robot.subsystems.Flywheels;
 import frc.robot.subsystems.Hood;
+import frc.robot.utils.ShotMap;
 
 /** Container class for all commands that operate on the structure */
 public class ShooterCommands {

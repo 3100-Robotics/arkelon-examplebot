@@ -57,9 +57,12 @@ public class Camera {
     if (doSim) {
       this.simCamProps = simCamProps;
       this.sim = new PhotonCameraSim(this.camera, this.simCamProps);
-      this.sim.enableDrawWireframe(simDrawWireframe);
-      this.sim.enableProcessedStream(processedStream);
-      this.sim.enableRawStream(processedStream);
+      // this.sim.enableDrawWireframe(simDrawWireframe);
+      // this.sim.enableProcessedStream(processedStream);
+      // this.sim.enableRawStream(processedStream);
+      this.sim.enableDrawWireframe(false);
+      this.sim.enableProcessedStream(true);
+      this.sim.enableRawStream(true);
     }
   }
 

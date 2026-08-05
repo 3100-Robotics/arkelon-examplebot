@@ -39,6 +39,7 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
+import frc.robot.utils.ShotMap;
 import frc.robot.vision.MainVision;
 
 public final class RobotContainer {
@@ -82,7 +83,8 @@ public final class RobotContainer {
   // Misc
   public final MainVision poseGetter =
       new MainVision(
-          (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {},
+          (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) ->
+              drivetrain.addVisionMeasurement(pose, timestamp, estimationStdDevs),
           () ->
               drivetrain.getState()
                   .Pose // drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive::getSimulatedDriveTrainPose
