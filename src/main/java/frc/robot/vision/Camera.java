@@ -10,7 +10,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -35,6 +35,9 @@ public class Camera implements Loggable {
   public final PhotonCamera camera;
   public final PhotonPoseEstimator photonEstimator;
 
+  // public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
+  // public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.1, 1.1, 1.1);
+
   public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
   public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.1, 1.1, 1.1);
 
@@ -49,13 +52,17 @@ public class Camera implements Loggable {
   private String stdevMode = "";
   private String newStdDevMode = "";
   private String distMode = "";
+  private String currentStrat = "";
+
+  public boolean multiTagFound = false;
+  public double latency = 0;
   private double avgDist = 0;
   private Pose3d intRawPose3d = Pose3d.kZero;
 
   private EstimateConsumer estimateConsumer =
       (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {};
 
-  private Supplier<Pair<Rotation2d, Double>> headingSupplier = () -> Pair.of(Rotation2d.kZero, 0.0);
+  private Supplier<Pair<Rotation3d, Double>> headingSupplier = () -> Pair.of(Rotation3d.kZero, 0.0);
 
   public Camera(
       AprilTagFieldLayout atagfieldlayout,
@@ -88,7 +95,7 @@ public class Camera implements Loggable {
     this.simField = simField;
   }
 
-  public void setHeadingSupplier(Supplier<Pair<Rotation2d, Double>> headingSupplier) {
+  public void setHeadingSupplier(Supplier<Pair<Rotation3d, Double>> headingSupplier) {
     this.headingSupplier = headingSupplier;
   }
 
@@ -102,11 +109,30 @@ public class Camera implements Loggable {
 
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
     for (var result : camera.getAllUnreadResults()) {
+      if (result.getTargets().size() == 1) {
+        if (result.getTargets().get(0).poseAmbiguity > 0.2) {
+          return;
+        }
+      }
+
       visionEst = photonEstimator.estimatePnpDistanceTrigSolvePose(result);
+      currentStrat = "PnpDistanceTrigSolvePose";
       if (visionEst.isEmpty()) {
+        currentStrat = "LowestAmbiguityPose";
         visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
       }
+
+      result
+          .getMultiTagResult()
+          .ifPresentOrElse(
+              e -> {
+                multiTagFound = true;
+              },
+              () -> multiTagFound = false);
+
       updateEstimationStdDevs(visionEst, result.getTargets());
+
+      latency = result.metadata.getLatencyMillis();
 
       if (Robot.isSimulation() && VisionAndPoseEstConstants.simulateCoproc) {
         visionEst.ifPresentOrElse(
@@ -124,9 +150,12 @@ public class Camera implements Loggable {
             // Change our trust in the measurement based on the tags we can see
             var estStdDevs = getEstimationStdDevs();
 
+            // if (est.estimatedPose.)
+            // return;
+
             intRawPose3d = est.estimatedPose;
             estimateConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-            //  SmartDashboard.put("poseRaw_" + camName, est.estimatedPose.toPose2d());
+            // SmartDashboard.put("poseRaw_" + camName, est.estimatedPose.toPose2d());
           });
     }
   }
@@ -156,6 +185,10 @@ public class Camera implements Loggable {
 
       // Precalculation - see how many tags we found, and calculate an average-distance metric
       for (var tgt : targets) {
+        // if (tgt.poseAmbiguity < 0.4) {
+        // avgDist += 2;
+        // continue;
+        // }
         var tagPose = photonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
         if (tagPose.isEmpty()) continue;
         numTags++;
@@ -186,7 +219,7 @@ public class Camera implements Loggable {
           estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
         } else {
           newStdDevMode = "Many, distance augmented (one tag, long)";
-          estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+          estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30)).times(1.1);
         }
         curStdDevs = estStdDevs;
       }
@@ -195,11 +228,12 @@ public class Camera implements Loggable {
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
     parentTable
+        .addPoseLogger(camName + "rawLatestPose", logMode, () -> intRawPose3d.toPose2d())
+        .addDoubleLogger(camName + "latency", logMode, () -> latency)
+        .addStringLogger(camName + "curStdDevs", logMode, () -> curStdDevs.toString())
         .addStringLogger(camName + "stdDevMode", logMode, () -> stdevMode)
-        .addStringLogger(
-            camName + "newStdDevMode",
-            logMode,
-            () -> newStdDevMode); // .addStringLogger(camName + "stdDevMode", logMode, () ->
-    // stdevMode);
+        .addStringLogger(camName + "newStdDevMode", logMode, () -> newStdDevMode)
+        .addStringLogger(camName + "currentStrat", logMode, () -> currentStrat)
+        .addBooleanLogger(camName + "multiTagFound", logMode, () -> multiTagFound);
   }
 }

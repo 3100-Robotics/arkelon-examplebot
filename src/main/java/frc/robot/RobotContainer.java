@@ -63,6 +63,8 @@ public final class RobotContainer {
 
   private final HPoseEstimator hPoseEstimator = new HPoseEstimator(drivetrain);
 
+  private final MatchContext matchContext = new MatchContext();
+
   // Misc
   public final MainVision v =
       new MainVision(
@@ -103,7 +105,7 @@ public final class RobotContainer {
     var rootTable = Loggerhead.getInstance().getRootTable();
 
     var visionTable = rootTable.getSubTable("Vision");
-    visionTable.addLoggableUnder("PoseGetter", v, mainLogMode);
+    visionTable.addLoggable(v, mainLogMode);
 
     var subsystemTable = rootTable.getSubTable("Subsystems");
     subsystemTable
@@ -166,7 +168,7 @@ public final class RobotContainer {
                             evenController::getLeftY,
                             evenController::getLeftX,
                             evenController::getRightTriggerAxis,
-                            () -> Pose2d.kZero))));
+                            matchContext::getHubPose))));
     evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
     evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
     drivetrain.setDefaultCommand(

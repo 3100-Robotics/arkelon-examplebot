@@ -9,6 +9,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
@@ -47,7 +48,7 @@ public class MainVision extends LightSubsystem implements Loggable {
       camera.setPoseOutput(estConsumer);
       camera.setHeadingSupplier(
           () -> {
-            return Pair.of(drivetrain.getPigeon2().getRotation2d(), Timer.getFPGATimestamp());
+            return Pair.of(obtainDrivetrainRotation(drivetrain), Timer.getFPGATimestamp());
           });
     }
 
@@ -58,6 +59,15 @@ public class MainVision extends LightSubsystem implements Loggable {
         visionSim.addCamera(camera.sim, camera.robotToCam);
         camera.setSimField(getSimDebugField());
       }
+    }
+  }
+
+  public Rotation3d obtainDrivetrainRotation(Drivetrain drivetrain) {
+    if (Robot.isReal()) {
+      return drivetrain.getPigeon2().getRotation3d();
+    } else {
+      // return new Rotation3d(0,0, drivetrain.getPigeon2().getRotation2d());
+      return new Rotation3d(drivetrain.getPigeon2().getRotation2d());
     }
   }
 
