@@ -4,12 +4,18 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
   private static final Robot INSTANCE = new Robot();
+
+  public double ilooptime;
+  public double elooptime;
+  public double looptime;
+  public int overruns = 0;
 
   public static Robot getInstance() {
     return INSTANCE;
@@ -26,7 +32,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    ilooptime = RobotController.getFPGATime();
     CommandScheduler.getInstance().run();
+    elooptime = RobotController.getFPGATime();
+    looptime = elooptime - ilooptime;
+    if (looptime > 20000) {
+      overruns += 1;
+    }
   }
 
   @Override

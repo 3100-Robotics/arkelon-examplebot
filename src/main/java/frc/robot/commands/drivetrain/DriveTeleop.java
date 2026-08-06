@@ -1,7 +1,7 @@
-package frc.robot.commands;
+package frc.robot.commands.drivetrain;
 
-import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.constants.DrivetrainConstants;
 import frc.robot.subsystems.Drivetrain;
 import java.util.function.Supplier;
 
@@ -11,11 +11,6 @@ public class DriveTeleop extends Command {
   private Supplier<Double> ySpeed;
   private Supplier<Double> thetaSpeed;
   private Supplier<Double> throttle;
-
-  // Requests
-  private static final SwerveRequest.Idle IDLE = new SwerveRequest.Idle();
-  private static final SwerveRequest.FieldCentric DRIVE_FIELD =
-      new SwerveRequest.FieldCentric().withDeadband(0).withRotationalDeadband(0);
 
   public DriveTeleop(
       Drivetrain drivetrain,
@@ -37,7 +32,7 @@ public class DriveTeleop extends Command {
   @Override
   public void execute() {
     drivetrain.setControl(
-        DRIVE_FIELD
+        DrivetrainConstants.DRIVE_FIELD
             .withVelocityX(xSpeed.get() * throttle.get())
             .withVelocityY(ySpeed.get() * throttle.get())
             .withRotationalRate(thetaSpeed.get()));
@@ -45,6 +40,6 @@ public class DriveTeleop extends Command {
 
   @Override
   public void end(boolean inturupted) {
-    drivetrain.setControl(IDLE);
+    drivetrain.setControl(DrivetrainConstants.IDLE);
   }
 }

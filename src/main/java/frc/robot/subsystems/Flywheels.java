@@ -4,13 +4,12 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.sbdc.loggerhead.LightSubsystem;
 import com.sbdc.loggerhead.LogMode;
 import com.sbdc.loggerhead.Loggable;
 import com.sbdc.loggerhead.Loggerhead;
-import com.sbdc.loggerhead.LightSubsystem;
 import com.sbdc.loggerhead.Table;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.constants.ShooterConstants;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.local.SparkWrapper;

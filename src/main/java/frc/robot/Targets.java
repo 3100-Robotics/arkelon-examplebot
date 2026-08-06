@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public interface Targets {
   public enum IntakePivotTarget {
-    High(120),
-    Medium(55),
-    Low(0);
+    High(-120),
+    Medium(-55),
+    Low(0.01);
 
     public final Angle angle;
 
@@ -46,8 +46,8 @@ public interface Targets {
   }
 
   public enum IndexerTarget {
-    Forward(1000, 1000, 3000),
-    Reverse(-2000, -1000, -3000),
+    Forward(2666, 2666, 4767),
+    Reverse(-2666, -2666, -4767),
     Off;
 
     public final Optional<AngularVelocity> lowSpeed;

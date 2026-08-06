@@ -56,8 +56,7 @@ public class IntakeRoller extends LightSubsystem implements Loggable {
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
     parentTable
-      .addDoubleLogger("rollerMechRPM", logMode, () -> motor.getMechanismVelocity().in(RPM))
-      .addStringLogger("state", logMode, target::toString)
-    ;
+        .addDoubleLogger("rollerMechRPM", logMode, () -> motor.getMechanismVelocity().in(RPM))
+        .addStringLogger("state", logMode, target::toString);
   }
 }
