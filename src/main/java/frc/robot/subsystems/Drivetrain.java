@@ -12,6 +12,7 @@ import com.sbdc.loggerhead.Loggable;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.generated.TunerConstantsFake0621;
 import frc.robot.generated.TunerConstantsFake0621.TunerSwerveDrivetrain;
 import frc.robot.utils.simulation.MapleSimSwerveDrivetrain;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -47,6 +49,8 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem, Logg
   private void commonSetup() {
     if (Utils.isSimulation()) {
       startSimThread();
+      mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
+          new Pose2d(1, 1, Rotation2d.kZero));
     }
     configNeutralMode(NeutralModeValue.Brake);
   }
@@ -218,5 +222,11 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem, Logg
   @Override
   public Optional<Pose2d> samplePoseAt(double timestampSeconds) {
     return super.samplePoseAt(Utils.fpgaToCurrentTime(timestampSeconds));
+  }
+
+  public SwerveModulePosition[] getModulePositions() {
+    return Arrays.stream(this.getModules())
+        .map(module -> module.getPosition(true))
+        .toArray(SwerveModulePosition[]::new);
   }
 }

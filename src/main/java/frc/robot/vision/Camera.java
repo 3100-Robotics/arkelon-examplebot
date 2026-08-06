@@ -3,6 +3,7 @@ package frc.robot.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
@@ -10,6 +11,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
 import frc.robot.constants.VisionConstants;
+import frc.robot.vision.MainVision.EstimateConsumer;
 import java.util.List;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
@@ -26,8 +28,8 @@ public class Camera {
   public final PhotonCamera camera;
   public final PhotonPoseEstimator photonEstimator;
 
-  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
-  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1, 1, 1);
+  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(0, 0, 0);
+  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0, 0, 0);
 
   private Field2d simField;
 
@@ -38,6 +40,9 @@ public class Camera {
   private String stdevMode = "";
   private double avgDist = 0;
   private Pose3d intRawPose3d = Pose3d.kZero;
+
+  private EstimateConsumer estimateConsumer =
+      (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {};
 
   public Camera(
       AprilTagFieldLayout atagfieldlayout,
@@ -57,17 +62,18 @@ public class Camera {
     if (doSim) {
       this.simCamProps = simCamProps;
       this.sim = new PhotonCameraSim(this.camera, this.simCamProps);
-      // this.sim.enableDrawWireframe(simDrawWireframe);
-      // this.sim.enableProcessedStream(processedStream);
-      // this.sim.enableRawStream(processedStream);
-      this.sim.enableDrawWireframe(false);
-      this.sim.enableProcessedStream(true);
-      this.sim.enableRawStream(true);
+      this.sim.enableDrawWireframe(simDrawWireframe);
+      this.sim.enableProcessedStream(processedStream);
+      this.sim.enableRawStream(processedStream);
     }
   }
 
   public void setSimField(Field2d simField) {
     this.simField = simField;
+  }
+
+  public void setPoseOutput(EstimateConsumer estimateConsumer) {
+    this.estimateConsumer = estimateConsumer;
   }
 
   public void update() {
@@ -96,7 +102,7 @@ public class Camera {
             var estStdDevs = getEstimationStdDevs();
 
             intRawPose3d = est.estimatedPose;
-            // estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+            estimateConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
           });
     }
   }

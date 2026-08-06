@@ -4,21 +4,14 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RPM;
-
 import com.sbdc.loggerhead.LogMode;
 import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.compoundlogger.LogCTREDrivetrain;
 import com.sbdc.loggerhead.compoundlogger.LogPowerDistribution;
 import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.WebServer;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -26,11 +19,13 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.DriveTeleop;
 import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.ShooterCommands;
+import frc.robot.commands.drivetrain.DrivePointAtPose;
+import frc.robot.commands.drivetrain.DriveTeleop;
 import frc.robot.commands.intake.IntakeCommands;
 import frc.robot.generated.TunerConstantsFake0621;
 import frc.robot.subsystems.Drivetrain;
@@ -39,6 +34,7 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
+import frc.robot.utils.DashboardStaticShotMap;
 import frc.robot.utils.ShotMap;
 import frc.robot.vision.MainVision;
 
@@ -49,25 +45,7 @@ public final class RobotContainer {
     return INSTANCE;
   }
 
-  private final ShotMap shotMap =
-      new ShotMap() {
-        {
-          SmartDashboard.putNumber("Hood Angle", 31);
-          SmartDashboard.putNumber("Flywheel Speed", 3100);
-        }
-
-        public String getTarget() {
-          return "Hub";
-        }
-
-        public AngularVelocity getFlywheelSpeed() {
-          return RPM.of(SmartDashboard.getNumber("Flywheel Speed", 5100));
-        }
-
-        public Angle getHoodAngle() {
-          return Degrees.of(SmartDashboard.getNumber("Hood Angle", 51));
-        }
-      };
+  private final ShotMap shotMap = new DashboardStaticShotMap();
 
   // Subsystems
   private final Drivetrain drivetrain = TunerConstantsFake0621.createDrivetrain();
@@ -80,15 +58,13 @@ public final class RobotContainer {
   private final IntakePivot intakePivot = new IntakePivot();
   private final IntakeRoller intakeRoller = new IntakeRoller();
 
+  private final HPoseEstimator hPoseEstimator = new HPoseEstimator(drivetrain);
+
   // Misc
-  public final MainVision poseGetter =
+  public final MainVision v =
       new MainVision(
-          (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) ->
-              drivetrain.addVisionMeasurement(pose, timestamp, estimationStdDevs),
-          () ->
-              drivetrain.getState()
-                  .Pose // drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive::getSimulatedDriveTrainPose
-          );
+          hPoseEstimator::addVisionMeasurement,
+          drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive::getSimulatedDriveTrainPose);
 
   public final CommandXboxController evenController = new CommandXboxController(0);
 
@@ -118,13 +94,18 @@ public final class RobotContainer {
     var rootTable = Loggerhead.getInstance().getRootTable();
 
     var visionTable = rootTable.getSubTable("Vision");
-    visionTable.addLoggableUnder("PoseGetter", poseGetter, mainLogMode);
+    visionTable.addLoggableUnder("PoseGetter", v, mainLogMode);
 
     var subsystemTable = rootTable.getSubTable("Subsystems");
     subsystemTable
         .getSubTable("Drivetrain")
         .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, drivetrain))
         .addCompoundLogger(new LogCTREDrivetrain("Swerve", mainLogMode, drivetrain))
+        .addPoseLogger(
+            "simTruePose",
+            mainLogMode,
+            () -> drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose())
+        .addLoggable(hPoseEstimator, mainLogMode)
         .addLoggable(drivetrain, mainLogMode);
 
     subsystemTable
@@ -165,7 +146,18 @@ public final class RobotContainer {
   }
 
   private void configureBindings() {
-    evenController.a().whileTrue(new Shoot(flywheels, hood, indexer, shotMap));
+    evenController
+        .a()
+        .whileTrue(
+            new ProxyCommand(new Shoot(flywheels, hood, indexer, shotMap))
+                .alongWith(
+                    new ProxyCommand(
+                        new DrivePointAtPose(
+                            drivetrain,
+                            evenController::getLeftY,
+                            evenController::getLeftX,
+                            evenController::getRightTriggerAxis,
+                            () -> Pose2d.kZero))));
     evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
     evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
     drivetrain.setDefaultCommand(
@@ -179,6 +171,14 @@ public final class RobotContainer {
     evenController.leftTrigger().whileTrue(IntakeCommands.pivotHigh(intakePivot));
     evenController.leftBumper().whileTrue(IntakeCommands.pivotMidLowToggle(intakePivot));
     evenController.rightBumper().whileTrue(IntakeCommands.rollerForward(intakeRoller));
+
+    SmartDashboard.putData(
+        Commands.runOnce(
+            () -> {
+              drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
+              drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
+                  new Pose2d(1, 1, Rotation2d.kZero));
+            }));
   }
 
   public Command getAutonomousCommand() {
