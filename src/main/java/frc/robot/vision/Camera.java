@@ -28,8 +28,8 @@ public class Camera {
   public final PhotonCamera camera;
   public final PhotonPoseEstimator photonEstimator;
 
-  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(0, 0, 0);
-  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0, 0, 0);
+  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
+  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1, 1, 1);
 
   private Field2d simField;
 
@@ -51,7 +51,8 @@ public class Camera {
       boolean doSim,
       SimCameraProperties simCamProps,
       boolean simDrawWireframe,
-      boolean processedStream) {
+      boolean processedStream,
+      boolean rawStream) {
 
     tagLayout = atagfieldlayout;
     robotToCam = robotCameraTransform;
@@ -64,7 +65,7 @@ public class Camera {
       this.sim = new PhotonCameraSim(this.camera, this.simCamProps);
       this.sim.enableDrawWireframe(simDrawWireframe);
       this.sim.enableProcessedStream(processedStream);
-      this.sim.enableRawStream(processedStream);
+      this.sim.enableRawStream(rawStream);
     }
   }
 
@@ -103,6 +104,7 @@ public class Camera {
 
             intRawPose3d = est.estimatedPose;
             estimateConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+            //  SmartDashboard.put("poseRaw_" + camName, est.estimatedPose.toPose2d());
           });
     }
   }

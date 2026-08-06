@@ -226,7 +226,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem, Logg
 
   public SwerveModulePosition[] getModulePositions() {
     return Arrays.stream(this.getModules())
-        .map(module -> module.getPosition(true))
+        .map(module -> module.getPosition(false))
         .toArray(SwerveModulePosition[]::new);
   }
 }

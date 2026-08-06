@@ -7,6 +7,9 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pound;
 
+import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -55,6 +58,10 @@ public interface ShooterConstants {
   DCMotor leftFlywheelMotorPhysical = DCMotor.getNEO(1);
   DCMotor rightFlywheelMotorPhysical = DCMotor.getNEO(1);
 
+  SparkBaseConfig neoNoBadFiltering =
+      new SparkMaxConfig()
+          .apply(new EncoderConfig().quadratureMeasurementPeriod(10).quadratureAverageDepth(2));
+
   SmartMotorControllerConfig hoodMotorConfig =
       new SmartMotorControllerConfig()
           // Direction / Current stuff
@@ -72,7 +79,7 @@ public interface ShooterConstants {
           .withSimFeedforward(new ArmFeedforward(0, 0, 0))
           // Control mode
           .withControlMode(ControlMode.CLOSED_LOOP)
-          .withTelemetry("hoodMotor", TelemetryVerbosity.HIGH)
+          .withTelemetry("hoodMotor", TelemetryVerbosity.LOW)
           // Sim props
           .withMomentOfInertia(KilogramSquareMeters.of(0.0190245794))
           // Starting Position
@@ -85,9 +92,7 @@ public interface ShooterConstants {
           .withControlMode(ControlMode.CLOSED_LOOP)
           .withGearing(1)
           .withMomentOfInertia(Inches.of(1.9825395), Pound.of(0.9))
-
-      // .withVendorConfig(Constants.MotorConfigs.noBadFilteringNEO) // TODO Implement this
-      ;
+          .withVendorConfig(neoNoBadFiltering);
 
   SmartMotorControllerConfig leftFlywheelMotorConfig =
       baseFlywheelConfig
@@ -100,7 +105,8 @@ public interface ShooterConstants {
           .withSimClosedLoopController(new PIDController(0.003, 0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.137))
           // Telemetry
-          .withTelemetry("leftFlywheelMotor", TelemetryVerbosity.HIGH);
+          .withTelemetry("leftFlywheelMotor", TelemetryVerbosity.LOW)
+          .withVendorConfig(neoNoBadFiltering);
 
   SmartMotorControllerConfig rightFlywheelMotorConfig =
       baseFlywheelConfig
@@ -113,5 +119,6 @@ public interface ShooterConstants {
           .withSimClosedLoopController(new PIDController(0.003, 0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.1399))
           // Control mode
-          .withTelemetry("rightFLywheelMotor", TelemetryVerbosity.HIGH);
+          .withTelemetry("rightFLywheelMotor", TelemetryVerbosity.LOW)
+          .withVendorConfig(neoNoBadFiltering);
 }

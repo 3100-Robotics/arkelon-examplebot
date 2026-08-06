@@ -9,8 +9,11 @@ import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.compoundlogger.LogCTREDrivetrain;
 import com.sbdc.loggerhead.compoundlogger.LogPowerDistribution;
 import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -63,7 +66,12 @@ public final class RobotContainer {
   // Misc
   public final MainVision v =
       new MainVision(
-          hPoseEstimator::addVisionMeasurement,
+          (Pose2d visionRobotPoseMeters,
+              double timestampSeconds,
+              Matrix<N3, N1> visionMeasurementStdDevs) -> {
+            hPoseEstimator.addVisionMeasurement(
+                visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+          },
           drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive::getSimulatedDriveTrainPose);
 
   public final CommandXboxController evenController = new CommandXboxController(0);

@@ -35,13 +35,13 @@ public class MainVision extends LightSubsystem implements Loggable {
   public MainVision(EstimateConsumer estConsumer, Supplier<Pose2d> simDTGetter) {
     this.simDTGetter = simDTGetter;
 
-    for (Camera camera : cameras) {
-      camera.setPoseOutput(estConsumer);
-    }
-
     // cameras.add(VisionConstants.CAM_EVAN);
     cameras.add(VisionConstants.CAM_LEFT);
     cameras.add(VisionConstants.CAM_RIGHT);
+
+    for (Camera camera : cameras) {
+      camera.setPoseOutput(estConsumer);
+    }
 
     if ((!Robot.isReal()) && VisionConstants.simulateCoproc) {
       visionSim = new VisionSystemSim("main");

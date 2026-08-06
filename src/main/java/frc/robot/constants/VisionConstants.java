@@ -52,6 +52,7 @@ public class VisionConstants {
               .setAvgLatencyMs(50)
               .setLatencyStdDevMs(15),
           true,
+          true,
           true);
 
   public static final Camera CAM_LEFT =
@@ -74,6 +75,7 @@ public class VisionConstants {
               .setFPS(30)
               .setAvgLatencyMs(50)
               .setLatencyStdDevMs(15),
+          true,
           true,
           true);
 }
