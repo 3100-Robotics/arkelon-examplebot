@@ -13,7 +13,9 @@ import frc.robot.Robot;
 import frc.robot.vision.Camera;
 import org.photonvision.simulation.SimCameraProperties;
 
-public class VisionConstants {
+public class VisionAndPoseEstConstants {
+  public static final double maxReasonableVisionDistance = 5;
+
   public static final boolean simulateCoproc = true;
 
   public static final AprilTagFieldLayout kTagLayout =
@@ -53,7 +55,8 @@ public class VisionConstants {
               .setLatencyStdDevMs(15),
           true,
           true,
-          true);
+          true,
+          2);
 
   public static final Camera CAM_LEFT =
       new Camera(
@@ -77,5 +80,6 @@ public class VisionConstants {
               .setLatencyStdDevMs(15),
           true,
           true,
-          true);
+          true,
+          2);
 }

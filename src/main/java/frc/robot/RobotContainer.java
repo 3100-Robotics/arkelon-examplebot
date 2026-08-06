@@ -72,7 +72,8 @@ public final class RobotContainer {
             hPoseEstimator.addVisionMeasurement(
                 visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
           },
-          drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive::getSimulatedDriveTrainPose);
+          drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive::getSimulatedDriveTrainPose,
+          drivetrain);
 
   public final CommandXboxController evenController = new CommandXboxController(0);
 
@@ -186,6 +187,7 @@ public final class RobotContainer {
               drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
               drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
                   new Pose2d(1, 1, Rotation2d.kZero));
+              hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
             }));
   }
 

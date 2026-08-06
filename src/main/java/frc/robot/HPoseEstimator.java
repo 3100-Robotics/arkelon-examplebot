@@ -11,17 +11,26 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.constants.VisionAndPoseEstConstants;
 import frc.robot.subsystems.Drivetrain;
 
 public class HPoseEstimator extends LightSubsystem implements Loggable {
-  private final SwerveDrivePoseEstimator est;
+  private final SwerveDrivePoseEstimator estWithVision;
+  private final SwerveDrivePoseEstimator estNoVision;
 
   public final Drivetrain drivetrain;
 
   public HPoseEstimator(Drivetrain drivetrain) {
     this.drivetrain = drivetrain;
 
-    est =
+    estWithVision =
+        new SwerveDrivePoseEstimator(
+            drivetrain.getKinematics(),
+            Rotation2d.kZero,
+            drivetrain.getModulePositions(),
+            Pose2d.kZero);
+
+    estNoVision =
         new SwerveDrivePoseEstimator(
             drivetrain.getKinematics(),
             Rotation2d.kZero,
@@ -33,16 +42,32 @@ public class HPoseEstimator extends LightSubsystem implements Loggable {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
+    if (visionRobotPoseMeters
+            .getTranslation()
+            .getDistance(estWithVision.getEstimatedPosition().getTranslation())
+        < VisionAndPoseEstConstants.maxReasonableVisionDistance) {
+      estWithVision.addVisionMeasurement(
+          visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    }
+  }
 
-    est.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+  public void reset(Pose2d resetPose, boolean vision, boolean noVision) {
+    if (vision) {
+      estWithVision.resetPose(resetPose);
+    }
+    if (noVision) {
+      estNoVision.resetPose(resetPose);
+    }
   }
 
   @Override
   public void periodic() {
-    est.update(drivetrain.getPigeon2().getRotation2d(), drivetrain.getModulePositions());
+    estWithVision.update(drivetrain.getPigeon2().getRotation2d(), drivetrain.getModulePositions());
+    estNoVision.update(drivetrain.getPigeon2().getRotation2d(), drivetrain.getModulePositions());
   }
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
-    parentTable.addPoseLogger("estimatedPose", logMode, est::getEstimatedPosition);
+    parentTable.addPoseLogger("estimatedPose", logMode, estWithVision::getEstimatedPosition);
+    parentTable.addPoseLogger("estimatedPoseNoVision", logMode, estNoVision::getEstimatedPosition);
   }
 }

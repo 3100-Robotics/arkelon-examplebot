@@ -1,19 +1,26 @@
 package frc.robot.vision;
 
+import com.sbdc.loggerhead.LogMode;
+import com.sbdc.loggerhead.Loggable;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.Table;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
-import frc.robot.constants.VisionConstants;
+import frc.robot.constants.VisionAndPoseEstConstants;
 import frc.robot.vision.MainVision.EstimateConsumer;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -21,7 +28,7 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class Camera {
+public class Camera implements Loggable {
   public final AprilTagFieldLayout tagLayout;
   public final Transform3d robotToCam;
   public final String camName;
@@ -29,20 +36,26 @@ public class Camera {
   public final PhotonPoseEstimator photonEstimator;
 
   public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
-  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1, 1, 1);
+  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.1, 1.1, 1.1);
 
   private Field2d simField;
 
   public SimCameraProperties simCamProps;
   public PhotonCameraSim sim;
-  private Matrix<N3, N1> curStdDevs = VecBuilder.fill(0, 0, 0);
+  private Matrix<N3, N1> curStdDevs =
+      VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+  private final double distanceCutoffMeters;
 
   private String stdevMode = "";
+  private String newStdDevMode = "";
+  private String distMode = "";
   private double avgDist = 0;
   private Pose3d intRawPose3d = Pose3d.kZero;
 
   private EstimateConsumer estimateConsumer =
       (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {};
+
+  private Supplier<Pair<Rotation2d, Double>> headingSupplier = () -> Pair.of(Rotation2d.kZero, 0.0);
 
   public Camera(
       AprilTagFieldLayout atagfieldlayout,
@@ -52,7 +65,9 @@ public class Camera {
       SimCameraProperties simCamProps,
       boolean simDrawWireframe,
       boolean processedStream,
-      boolean rawStream) {
+      boolean rawStream,
+      double distanceCutoffMeters) {
+    this.distanceCutoffMeters = distanceCutoffMeters;
 
     tagLayout = atagfieldlayout;
     robotToCam = robotCameraTransform;
@@ -73,20 +88,27 @@ public class Camera {
     this.simField = simField;
   }
 
+  public void setHeadingSupplier(Supplier<Pair<Rotation2d, Double>> headingSupplier) {
+    this.headingSupplier = headingSupplier;
+  }
+
   public void setPoseOutput(EstimateConsumer estimateConsumer) {
     this.estimateConsumer = estimateConsumer;
   }
 
   public void update() {
+    var heading = headingSupplier.get();
+    photonEstimator.addHeadingData(heading.getSecond(), heading.getFirst());
+
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
     for (var result : camera.getAllUnreadResults()) {
-      visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
+      visionEst = photonEstimator.estimatePnpDistanceTrigSolvePose(result);
       if (visionEst.isEmpty()) {
         visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
       }
       updateEstimationStdDevs(visionEst, result.getTargets());
 
-      if (Robot.isSimulation() && VisionConstants.simulateCoproc) {
+      if (Robot.isSimulation() && VisionAndPoseEstConstants.simulateCoproc) {
         visionEst.ifPresentOrElse(
             est ->
                 simField
@@ -125,7 +147,7 @@ public class Camera {
     if (estimatedPose.isEmpty()) {
       // No pose input. Default to single-tag std devs
       curStdDevs = kSingleTagStdDevs;
-      stdevMode = "#0";
+      newStdDevMode = "Single (No tags, no est pose, high)";
     } else {
       // Pose present. Start running Heuristic
       var estStdDevs = kSingleTagStdDevs;
@@ -146,28 +168,38 @@ public class Camera {
       }
 
       if (numTags == 0) {
-        stdevMode = "#1";
         // No tags visible. Default to single-tag std devs
         curStdDevs = kSingleTagStdDevs;
+        newStdDevMode = "Single (No tags, low)";
       } else {
-        stdevMode = "#2";
         // One or more tags visible, run the full heuristic.
         avgDist /= numTags;
         // Decrease std devs if multiple targets are visible
+        stdevMode = "Using singletag devs";
         if (numTags > 1) {
           estStdDevs = kMultiTagStdDevs;
-          stdevMode = "#3 Multi";
+          stdevMode = "Using multitag stdDevs";
         }
         // Increase std devs based on (average) distance
-        if (numTags == 1 && avgDist > 3.1) {
-          stdevMode = "#4";
+        if (numTags == 1 && avgDist > distanceCutoffMeters) {
+          newStdDevMode = "Cutoff (one tag, long)";
           estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
         } else {
-          stdevMode = "#5";
+          newStdDevMode = "Many, distance augmented (one tag, long)";
           estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
         }
         curStdDevs = estStdDevs;
       }
     }
+  }
+
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    parentTable
+        .addStringLogger(camName + "stdDevMode", logMode, () -> stdevMode)
+        .addStringLogger(
+            camName + "newStdDevMode",
+            logMode,
+            () -> newStdDevMode); // .addStringLogger(camName + "stdDevMode", logMode, () ->
+    // stdevMode);
   }
 }

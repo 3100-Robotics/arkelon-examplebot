@@ -7,19 +7,22 @@ import com.sbdc.loggerhead.Loggerhead;
 import com.sbdc.loggerhead.Table;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
-import frc.robot.constants.VisionConstants;
+import frc.robot.constants.VisionAndPoseEstConstants;
+import frc.robot.subsystems.Drivetrain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import org.photonvision.simulation.VisionSystemSim;
 
 public class MainVision extends LightSubsystem implements Loggable {
-  public static final AprilTagFieldLayout kTagLayout = VisionConstants.kTagLayout;
+  public static final AprilTagFieldLayout kTagLayout = VisionAndPoseEstConstants.kTagLayout;
 
   // Simulation
   private VisionSystemSim visionSim;
@@ -32,18 +35,23 @@ public class MainVision extends LightSubsystem implements Loggable {
    *     org.wpilib.math.estimator.SwerveDrivePoseEstimator}
    */
   @SuppressWarnings("unused")
-  public MainVision(EstimateConsumer estConsumer, Supplier<Pose2d> simDTGetter) {
+  public MainVision(
+      EstimateConsumer estConsumer, Supplier<Pose2d> simDTGetter, Drivetrain drivetrain) {
     this.simDTGetter = simDTGetter;
 
     // cameras.add(VisionConstants.CAM_EVAN);
-    cameras.add(VisionConstants.CAM_LEFT);
-    cameras.add(VisionConstants.CAM_RIGHT);
+    cameras.add(VisionAndPoseEstConstants.CAM_LEFT);
+    cameras.add(VisionAndPoseEstConstants.CAM_RIGHT);
 
     for (Camera camera : cameras) {
       camera.setPoseOutput(estConsumer);
+      camera.setHeadingSupplier(
+          () -> {
+            return Pair.of(drivetrain.getPigeon2().getRotation2d(), Timer.getFPGATimestamp());
+          });
     }
 
-    if ((!Robot.isReal()) && VisionConstants.simulateCoproc) {
+    if ((!Robot.isReal()) && VisionAndPoseEstConstants.simulateCoproc) {
       visionSim = new VisionSystemSim("main");
       visionSim.addAprilTags(kTagLayout);
       for (Camera camera : cameras) {
@@ -59,7 +67,7 @@ public class MainVision extends LightSubsystem implements Loggable {
       camera.update();
     }
 
-    if ((!Robot.isReal()) && VisionConstants.simulateCoproc) {
+    if ((!Robot.isReal()) && VisionAndPoseEstConstants.simulateCoproc) {
       visionSim.update(simDTGetter.get());
     }
   }
@@ -67,17 +75,22 @@ public class MainVision extends LightSubsystem implements Loggable {
   /** Reset pose history of the robot in the vision system simulation. */
   @SuppressWarnings("unused")
   public void resetSimPose(Pose2d pose) {
-    if (Robot.isSimulation() && VisionConstants.simulateCoproc) visionSim.resetRobotPose(pose);
+    if (Robot.isSimulation() && VisionAndPoseEstConstants.simulateCoproc)
+      visionSim.resetRobotPose(pose);
   }
 
   /** A Field2d for visualizing our robot and objects on the field. */
   public Field2d getSimDebugField() {
     if (!Robot.isSimulation()) return null;
-    if (!VisionConstants.simulateCoproc) return null;
+    if (!VisionAndPoseEstConstants.simulateCoproc) return null;
     return visionSim.getDebugField();
   }
 
-  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {}
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    for (Camera camera : cameras) {
+      parentTable.addLoggable(camera, logMode);
+    }
+  }
 
   @FunctionalInterface
   public static interface EstimateConsumer {

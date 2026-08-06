@@ -91,6 +91,8 @@ public class MapleSimSwerveDrivetrain {
       SwerveModule<TalonFX, TalonFX, CANcoder>[] modules,
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>...
           moduleConstants) {
+    // SimulatedArena.overrideInstance(new ArenaEvergreen(true));
+
     this.pigeonSim = pigeon.getSimState();
     simModules = new SimSwerveModule[moduleConstants.length];
     DriveTrainSimulationConfig simulationConfig =
