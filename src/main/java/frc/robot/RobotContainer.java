@@ -74,7 +74,10 @@ public final class RobotContainer {
             hPoseEstimator.addVisionMeasurement(
                 visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
           },
-          drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive::getSimulatedDriveTrainPose,
+          Robot.isReal()
+              ? () -> Pose2d.kZero
+              : () ->
+                  drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose(),
           drivetrain);
 
   public final CommandXboxController evenController = new CommandXboxController(0);
@@ -112,12 +115,17 @@ public final class RobotContainer {
         .getSubTable("Drivetrain")
         .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, drivetrain))
         .addCompoundLogger(new LogCTREDrivetrain("Swerve", mainLogMode, drivetrain))
-        .addPoseLogger(
-            "simTruePose",
-            mainLogMode,
-            () -> drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose())
         .addLoggable(hPoseEstimator, mainLogMode)
         .addLoggable(drivetrain, mainLogMode);
+
+    if (!Robot.isReal()) {
+      subsystemTable
+          .getSubTable("Drivetrain")
+          .addPoseLogger(
+              "simTruePose",
+              mainLogMode,
+              () -> drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose());
+    }
 
     subsystemTable
         .getSubTable("Hood")
@@ -187,9 +195,12 @@ public final class RobotContainer {
         Commands.runOnce(
             () -> {
               drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
-              drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
-                  new Pose2d(1, 1, Rotation2d.kZero));
               hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
+
+              if (!Robot.isReal()) {
+                drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
+                    new Pose2d(1, 1, Rotation2d.kZero));
+              }
             }));
   }
 
