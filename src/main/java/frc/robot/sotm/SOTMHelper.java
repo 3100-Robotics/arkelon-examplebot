@@ -7,7 +7,7 @@ import frc.robot.MatchContext;
 
 /** Based on blog.eeshwark.com/blog/shooting-on-the-fly-pt2 */
 public class SOTMHelper {
-  public static double latencySeconds = 0.15;
+  public static double latencySeconds = 0.1;
 
   public record Solution(Rotation2d aimHeading, double hoodAngleDeg, double flywheelRpm) {}
 

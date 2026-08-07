@@ -43,8 +43,8 @@ public class DrivePointAtPose extends Command {
 
     drivetrain.setControl(
         DrivetrainConstants.DRIVE_FIELD_ROT_LOCK
-            .withVelocityX(xSpeed.get() * throttle.get())
-            .withVelocityY(ySpeed.get() * throttle.get())
+            .withVelocityX(-xSpeed.get() * throttle.get())
+            .withVelocityY(-ySpeed.get() * throttle.get())
             .withTargetDirection(targetRotation));
   }
 

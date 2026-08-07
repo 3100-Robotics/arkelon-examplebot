@@ -55,7 +55,7 @@ public interface IntakeConstants {
           .withMotorInverted(false)
           .withStatorCurrentLimit(Amps.of(80))
           // .withSupplyCurrentLimit(Amps.of(40))
-          .withIdleMode(MotorMode.COAST)
+          .withIdleMode(MotorMode.BRAKE)
           // Gearing
           .withGearing(1)
           // PID / FF

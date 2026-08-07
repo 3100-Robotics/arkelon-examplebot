@@ -1,6 +1,5 @@
 package frc.robot.sotm;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.MathUtil;
@@ -17,23 +16,43 @@ public class ShotTable {
   public static final List<Pair<Distance, Double>> distanceTofTable = new ArrayList<>();
 
   static {
+    distanceAngleTable.add(Pair.of(Meters.of(1.243), 17.5)); // Close
+    distanceAngleTable.add(Pair.of(Meters.of(2.047), 22.0)); // Farther
+    distanceAngleTable.add(Pair.of(Meters.of(5.362), 34.0)); // Farthest
+    distanceAngleTable.add(Pair.of(Meters.of(4.0), 31.5)); // Kinda far
+
+    distanceSpeedTable.add(Pair.of(Meters.of(1.243), 2600.0)); // Close
+    distanceSpeedTable.add(Pair.of(Meters.of(2.047), 2800.0)); // Farther
+    distanceSpeedTable.add(Pair.of(Meters.of(5.362), 4000.0)); // Farthest
+    distanceSpeedTable.add(Pair.of(Meters.of(4.0), 3300.0)); // Kinda far
+
+    distanceTofTable.add(
+        Pair.of(Meters.of(1.243), ((2.9 - 1.9) + (3.17 - 2.13) + (5.8 - 4.81)) / 3)); // Close
+    distanceTofTable.add(
+        Pair.of(Meters.of(2.047), ((2.70 - 1.55) + (3.25 - 2.25) + (3.16 - 1.98)) / 3)); // Farther
+    distanceTofTable.add(
+        Pair.of(
+            Meters.of(5.362), ((2.63 - 1.24) + (3.13 - 1.75) + (5.35 - 4.06)) / 3)); //  Farthest
+    distanceTofTable.add(
+        Pair.of(Meters.of(4.0), ((6.84 - 5.66) + (7.62 - 6.46) + (8.36 - 7.22)) / 3)); // Kinda far
+
     // Distance Angle
-    distanceAngleTable.add(Pair.of(Meters.of(1.36), 20.0 - 2.5)); // Close
-    distanceAngleTable.add(Pair.of(Inches.of(135), 27.8)); // Tower fwd
-    distanceAngleTable.add(Pair.of(Inches.of(164), 31.5)); // Tower bkwd
-    distanceAngleTable.add(Pair.of(Meters.of(5.86), 40.0 - 2.5)); // Far
+    // distanceAngleTable.add(Pair.of(Meters.of(1.36), 20.0 - 2.5)); // Close
+    // distanceAngleTable.add(Pair.of(Inches.of(135), 27.8)); // Tower fwd
+    // distanceAngleTable.add(Pair.of(Inches.of(164), 31.5)); // Tower bkwd
+    // distanceAngleTable.add(Pair.of(Meters.of(5.86), 40.0 - 2.5)); // Far
 
-    // Distance Speed
-    distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2400.0 + (2400 * 0.05))); // Close
-    distanceSpeedTable.add(Pair.of(Inches.of(135), 3100.0)); // Tower fwd
-    distanceSpeedTable.add(Pair.of(Inches.of(164), 3300.0)); // Tower bkwd
-    distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3960.0 + (3960 * 0.05))); // Far
+    // // Distance Speed
+    // distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2400.0 + (2400 * 0.05))); // Close
+    // distanceSpeedTable.add(Pair.of(Inches.of(135), 3100.0)); // Tower fwd
+    // distanceSpeedTable.add(Pair.of(Inches.of(164), 3300.0)); // Tower bkwd
+    // distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3960.0 + (3960 * 0.05))); // Far
 
-    // Distance tof
-    distanceTofTable.add(Pair.of(Meters.of(1.36), 0.40)); // Close
-    distanceTofTable.add(Pair.of(Inches.of(135), 0.55)); // Tower fwd
-    distanceTofTable.add(Pair.of(Inches.of(164), 0.62)); // Tower bkwd
-    distanceTofTable.add(Pair.of(Meters.of(5.86), 0.95)); // Far
+    // // Distance tof
+    // distanceTofTable.add(Pair.of(Meters.of(1.36), 0.40)); // Close
+    // distanceTofTable.add(Pair.of(Inches.of(135), 0.55)); // Tower fwd
+    // distanceTofTable.add(Pair.of(Inches.of(164), 0.62)); // Tower bkwd
+    // distanceTofTable.add(Pair.of(Meters.of(5.86), 0.95)); // Far
   }
 
   public static final InterpolatingDoubleTreeMap ANGLE_MAP = new InterpolatingDoubleTreeMap();

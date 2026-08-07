@@ -25,7 +25,7 @@ public interface Targets {
   }
 
   public enum IntakeRollerTarget {
-    Forward(4000),
+    Forward(6000),
     Reverse(-4000),
     Off;
 
@@ -47,6 +47,7 @@ public interface Targets {
 
   public enum IndexerTarget {
     Forward(2666, 2666, 4767),
+    // Forward(2666 / 2, 2666 / 2, 4767 / 2),
     Reverse(-2666, -2666, -4767),
     Off;
 

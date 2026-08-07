@@ -38,8 +38,8 @@ public class Camera implements Loggable {
   // public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
   // public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.1, 1.1, 1.1);
 
-  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
-  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.1, 1.1, 1.1);
+  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
+  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
 
   private Field2d simField;
 
@@ -115,7 +115,9 @@ public class Camera implements Loggable {
         }
       }
 
+
       visionEst = photonEstimator.estimatePnpDistanceTrigSolvePose(result);
+      // visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
       currentStrat = "PnpDistanceTrigSolvePose";
       if (visionEst.isEmpty()) {
         currentStrat = "LowestAmbiguityPose";

@@ -16,7 +16,7 @@ public class FieldConstants {
     Welded
   }
 
-  public static Field currentFieldType = Field.Welded;
+  public static Field currentFieldType = Field.Andymark;
 
   public static final Distance fieldLength =
       (currentFieldType == Field.Andymark)

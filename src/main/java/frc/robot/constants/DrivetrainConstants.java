@@ -15,7 +15,7 @@ public class DrivetrainConstants {
     tmpRequest.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
 
     if (Robot.isReal()) {
-      tmpRequest = tmpRequest.withHeadingPID(10, 0, 0);
+      tmpRequest = tmpRequest.withHeadingPID(1.5, 0, 0);
     } else {
       tmpRequest = tmpRequest.withHeadingPID(2.5, 0, 0);
     }

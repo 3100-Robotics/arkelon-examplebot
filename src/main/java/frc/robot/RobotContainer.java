@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -38,7 +37,9 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
+import frc.robot.utils.DashboardStaticShotMap;
 import frc.robot.utils.DynamicShotMap;
+import frc.robot.utils.ShotMap;
 import frc.robot.vision.MainVision;
 
 public final class RobotContainer {
@@ -51,7 +52,7 @@ public final class RobotContainer {
   // Subsystems (and everything else)
   private final Drivetrain drivetrain = TunerConstantsFake0621.createDrivetrain();
 
-  // private final ShotMap dashShotMap = new DashboardStaticShotMap();
+  private final ShotMap dashShotMap = new DashboardStaticShotMap();
   private final SOTMState sotmstate = new SOTMState(drivetrain);
   private final DynamicShotMap dynamicShotMap = new DynamicShotMap(sotmstate);
 
@@ -167,6 +168,16 @@ public final class RobotContainer {
 
     rootTable.addStringLogger(
         "oops", mainLogMode, MatchContext.getInstance().getHubPose()::toString);
+
+    rootTable.addDoubleLogger(
+        "robotHubDistance",
+        mainLogMode,
+        () ->
+            drivetrain
+                .getState()
+                .Pose
+                .getTranslation()
+                .getDistance(MatchContext.getInstance().getHubTranslation()));
   }
 
   private void configureBindings() {
@@ -182,6 +193,20 @@ public final class RobotContainer {
                             evenController::getLeftX,
                             evenController::getRightTriggerAxis,
                             sotmstate::getHeading))));
+
+    evenController
+        .b()
+        .whileTrue(
+            new ProxyCommand(new Shoot(flywheels, hood, indexer, dashShotMap))
+                .alongWith(
+                    new ProxyCommand(
+                        new DrivePointAtAngle(
+                            drivetrain,
+                            evenController::getLeftY,
+                            evenController::getLeftX,
+                            evenController::getRightTriggerAxis,
+                            sotmstate::getHeading))));
+
     evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
     evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
     drivetrain.setDefaultCommand(
@@ -189,24 +214,27 @@ public final class RobotContainer {
             drivetrain,
             evenController::getLeftY,
             evenController::getLeftX,
-            evenController::getRightX,
+            () -> -evenController.getRightX(),
             evenController::getRightTriggerAxis));
 
     evenController.leftTrigger().whileTrue(IntakeCommands.pivotHigh(intakePivot));
-    evenController.leftBumper().whileTrue(IntakeCommands.pivotMidLowToggle(intakePivot));
-    evenController.rightBumper().whileTrue(IntakeCommands.rollerForward(intakeRoller));
+    evenController.rightBumper().whileTrue(IntakeCommands.pivotMidLowToggle(intakePivot));
+    evenController.leftBumper().whileTrue(IntakeCommands.rollerForward(intakeRoller));
 
-    SmartDashboard.putData(
-        Commands.runOnce(
-            () -> {
-              drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
-              hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
+    evenController
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
+                  hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
+                  drivetrain.getPigeon2().reset();
 
-              if (!Robot.isReal()) {
-                drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
-                    new Pose2d(1, 1, Rotation2d.kZero));
-              }
-            }));
+                  if (!Robot.isReal()) {
+                    drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
+                        new Pose2d(1, 1, Rotation2d.kZero));
+                  }
+                }));
   }
 
   public Command getAutonomousCommand() {

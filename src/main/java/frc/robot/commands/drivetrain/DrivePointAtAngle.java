@@ -35,8 +35,8 @@ public class DrivePointAtAngle extends Command {
   public void execute() {
     drivetrain.setControl(
         DrivetrainConstants.DRIVE_FIELD_ROT_LOCK
-            .withVelocityX(xSpeed.get() * throttle.get())
-            .withVelocityY(ySpeed.get() * throttle.get())
+            .withVelocityX(-xSpeed.get() * throttle.get())
+            .withVelocityY(-ySpeed.get() * throttle.get())
             .withTargetDirection(this.targetSupplier.get()));
   }
 
