@@ -27,18 +27,18 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.ShooterCommands;
-import frc.robot.commands.drivetrain.DrivePointAtPose;
+import frc.robot.commands.drivetrain.DrivePointAtAngle;
 import frc.robot.commands.drivetrain.DriveTeleop;
 import frc.robot.commands.intake.IntakeCommands;
 import frc.robot.generated.TunerConstantsFake0621;
+import frc.robot.sotm.SOTMState;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Flywheels;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
-import frc.robot.utils.DashboardStaticShotMap;
-import frc.robot.utils.ShotMap;
+import frc.robot.utils.DynamicShotMap;
 import frc.robot.vision.MainVision;
 
 public final class RobotContainer {
@@ -48,10 +48,12 @@ public final class RobotContainer {
     return INSTANCE;
   }
 
-  private final ShotMap shotMap = new DashboardStaticShotMap();
-
-  // Subsystems
+  // Subsystems (and everything else)
   private final Drivetrain drivetrain = TunerConstantsFake0621.createDrivetrain();
+
+  // private final ShotMap dashShotMap = new DashboardStaticShotMap();
+  private final SOTMState sotmstate = new SOTMState(drivetrain);
+  private final DynamicShotMap dynamicShotMap = new DynamicShotMap(sotmstate);
 
   public final Flywheels flywheels = new Flywheels();
   private final Hood hood = new Hood();
@@ -63,7 +65,7 @@ public final class RobotContainer {
 
   private final HPoseEstimator hPoseEstimator = new HPoseEstimator(drivetrain);
 
-  private final MatchContext matchContext = new MatchContext();
+  private final MatchContext matchContext = MatchContext.getInstance();
 
   // Misc
   public final MainVision v =
@@ -162,21 +164,24 @@ public final class RobotContainer {
             "timeSinceLastOverrun",
             LogMode.NetworkOnly,
             () -> Robot.getInstance().ilooptime / 1000000);
+
+    rootTable.addStringLogger(
+        "oops", mainLogMode, MatchContext.getInstance().getHubPose()::toString);
   }
 
   private void configureBindings() {
     evenController
         .a()
         .whileTrue(
-            new ProxyCommand(new Shoot(flywheels, hood, indexer, shotMap))
+            new ProxyCommand(new Shoot(flywheels, hood, indexer, dynamicShotMap))
                 .alongWith(
                     new ProxyCommand(
-                        new DrivePointAtPose(
+                        new DrivePointAtAngle(
                             drivetrain,
                             evenController::getLeftY,
                             evenController::getLeftX,
                             evenController::getRightTriggerAxis,
-                            matchContext::getHubPose))));
+                            sotmstate::getHeading))));
     evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
     evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
     drivetrain.setDefaultCommand(
@@ -208,7 +213,7 @@ public final class RobotContainer {
     // return Commands.print("No autonomous command configured");
     return Commands.sequence(
             new IndexerCommands.ReverseIndexer(indexer).withTimeout(2),
-            ShooterCommands.shooterDynamic(hood, flywheels, shotMap).withTimeout(3))
+            ShooterCommands.shooterDynamic(hood, flywheels, dynamicShotMap).withTimeout(3))
         .withTimeout(5);
   }
 }

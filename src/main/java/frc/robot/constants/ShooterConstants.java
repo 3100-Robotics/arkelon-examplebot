@@ -28,7 +28,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public interface ShooterConstants {
   // Shot table
-  public class ShotTable {
+  public class OldShotTable {
     public static final List<Pair<Distance, Double>> distanceAngleTable = new ArrayList<>();
     public static final List<Pair<Distance, Double>> distanceSpeedTable = new ArrayList<>();
 

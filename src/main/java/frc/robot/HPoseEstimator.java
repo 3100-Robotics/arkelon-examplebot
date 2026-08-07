@@ -48,10 +48,10 @@ public class HPoseEstimator extends LightSubsystem implements Loggable {
     estWithVision.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
 
-    if (!Robot.isReal()) {
-      drivetrain.addVisionMeasurement(
-          visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
-    }
+    // if (Robot.isReal()) {
+    drivetrain.addVisionMeasurement(
+        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    // }
     // }
   }
 

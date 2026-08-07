@@ -14,7 +14,7 @@ public class DashboardStaticShotMap implements ShotMap {
   }
 
   public String getTarget() {
-    return "Hub";
+    return "Dashboard set (NT:SmartDashboard/<Hood Angle, Flywheel Speed>)";
   }
 
   public AngularVelocity getFlywheelSpeed() {

@@ -12,6 +12,8 @@ public class DrivetrainConstants {
     var tmpRequest =
         new SwerveRequest.FieldCentricFacingAngle().withDeadband(0.1).withRotationalDeadband(0.1);
 
+    tmpRequest.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+
     if (Robot.isReal()) {
       tmpRequest = tmpRequest.withHeadingPID(10, 0, 0);
     } else {
@@ -22,5 +24,5 @@ public class DrivetrainConstants {
   }
 
   public static final SwerveRequest.FieldCentric DRIVE_FIELD =
-      new SwerveRequest.FieldCentric().withDeadband(0).withRotationalDeadband(0);
+      new SwerveRequest.FieldCentric().withDeadband(0.09).withRotationalDeadband(0.09);
 }
