@@ -28,6 +28,7 @@ public class MainVision extends LightSubsystem implements Loggable {
   // Simulation
   private VisionSystemSim visionSim;
   private Supplier<Pose2d> simDTGetter;
+  public final Drivetrain drivetrain;
 
   private List<Camera> cameras = new ArrayList<>();
 
@@ -39,10 +40,11 @@ public class MainVision extends LightSubsystem implements Loggable {
   public MainVision(
       EstimateConsumer estConsumer, Supplier<Pose2d> simDTGetter, Drivetrain drivetrain) {
     this.simDTGetter = simDTGetter;
+    this.drivetrain = drivetrain;
 
     // cameras.add(VisionConstants.CAM_EVAN);
     cameras.add(VisionAndPoseEstConstants.CAM_LEFT);
-    cameras.add(VisionAndPoseEstConstants.CAM_RIGHT);
+    // cameras.add(VisionAndPoseEstConstants.CAM_RIGHT);
 
     for (Camera camera : cameras) {
       camera.setPoseOutput(estConsumer);
@@ -100,6 +102,10 @@ public class MainVision extends LightSubsystem implements Loggable {
     for (Camera camera : cameras) {
       parentTable.addLoggable(camera, logMode);
     }
+    parentTable.addDoubleLogger(
+        "rot0", logMode, () -> drivetrain.getPigeon2().getRotation3d().getZ());
+    parentTable.addDoubleLogger(
+        "rot1", logMode, () -> drivetrain.getPigeon2().getRotation2d().getDegrees());
   }
 
   @FunctionalInterface

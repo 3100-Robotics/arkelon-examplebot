@@ -8,7 +8,10 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.sbdc.loggerhead.LogMode;
 import com.sbdc.loggerhead.Loggable;
+import com.sbdc.loggerhead.Loggerhead;
+import com.sbdc.loggerhead.Table;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -228,5 +231,10 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem, Logg
     return Arrays.stream(this.getModules())
         .map(module -> module.getPosition(false))
         .toArray(SwerveModulePosition[]::new);
+  }
+
+  public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
+    parentTable.addBooleanLogger(
+        "hasAppliedOperatorPerspective", logMode, () -> m_hasAppliedOperatorPerspective);
   }
 }

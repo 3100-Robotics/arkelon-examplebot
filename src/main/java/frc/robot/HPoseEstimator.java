@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import frc.robot.constants.VisionAndPoseEstConstants;
 import frc.robot.subsystems.Drivetrain;
 
 public class HPoseEstimator extends LightSubsystem implements Loggable {
@@ -42,13 +41,18 @@ public class HPoseEstimator extends LightSubsystem implements Loggable {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    if (visionRobotPoseMeters
-            .getTranslation()
-            .getDistance(estWithVision.getEstimatedPosition().getTranslation())
-        < VisionAndPoseEstConstants.maxReasonableVisionDistance) {
-      estWithVision.addVisionMeasurement(
+    // if (visionRobotPoseMeters
+    //         .getTranslation()
+    //         .getDistance(estWithVision.getEstimatedPosition().getTranslation())
+    //     < VisionAndPoseEstConstants.maxReasonableVisionDistance) {
+    estWithVision.addVisionMeasurement(
+        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+
+    if (!Robot.isReal()) {
+      drivetrain.addVisionMeasurement(
           visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
+    // }
   }
 
   public void reset(Pose2d resetPose, boolean vision, boolean noVision) {

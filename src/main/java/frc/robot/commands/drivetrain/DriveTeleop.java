@@ -33,8 +33,8 @@ public class DriveTeleop extends Command {
   public void execute() {
     drivetrain.setControl(
         DrivetrainConstants.DRIVE_FIELD
-            .withVelocityX(xSpeed.get() * throttle.get())
-            .withVelocityY(ySpeed.get() * throttle.get())
+            .withVelocityX(-xSpeed.get() * throttle.get())
+            .withVelocityY(-ySpeed.get() * throttle.get())
             .withRotationalRate(thetaSpeed.get()));
   }
 
