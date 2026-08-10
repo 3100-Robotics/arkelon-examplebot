@@ -77,7 +77,7 @@ public class Camera implements Loggable {
     this.distanceCutoffMeters = distanceCutoffMeters;
 
     tagLayout = atagfieldlayout;
-    robotToCam = robotCameraTransform;
+    this.robotToCam = robotCameraTransform;
     this.camName = camName;
     camera = new PhotonCamera(this.camName);
     photonEstimator = new PhotonPoseEstimator(this.tagLayout, this.robotToCam);
@@ -114,7 +114,6 @@ public class Camera implements Loggable {
           return;
         }
       }
-
 
       visionEst = photonEstimator.estimatePnpDistanceTrigSolvePose(result);
       // visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
@@ -230,7 +229,9 @@ public class Camera implements Loggable {
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
     parentTable
-        .addPoseLogger(camName + "rawLatestPose", logMode, () -> intRawPose3d.toPose2d())
+        .addStructLogger(
+            camName + "rawLatestPose", logMode, () -> intRawPose3d.toPose2d(), Pose2d.struct)
+        .addStructLogger(camName + "camPose", logMode, () -> robotToCam, Transform3d.struct)
         .addDoubleLogger(camName + "latency", logMode, () -> latency)
         .addStringLogger(camName + "curStdDevs", logMode, () -> curStdDevs.toString())
         .addStringLogger(camName + "stdDevMode", logMode, () -> stdevMode)

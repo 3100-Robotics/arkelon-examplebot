@@ -71,7 +71,9 @@ public class HPoseEstimator extends LightSubsystem implements Loggable {
   }
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
-    parentTable.addPoseLogger("estimatedPose", logMode, estWithVision::getEstimatedPosition);
-    parentTable.addPoseLogger("estimatedPoseNoVision", logMode, estNoVision::getEstimatedPosition);
+    parentTable.addStructLogger(
+        "estimatedPose", logMode, estWithVision::getEstimatedPosition, Pose2d.struct);
+    parentTable.addStructLogger(
+        "estimatedPoseNoVision", logMode, estNoVision::getEstimatedPosition, Pose2d.struct);
   }
 }

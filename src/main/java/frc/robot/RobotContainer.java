@@ -66,8 +66,6 @@ public final class RobotContainer {
 
   private final HPoseEstimator hPoseEstimator = new HPoseEstimator(drivetrain);
 
-  private final MatchContext matchContext = MatchContext.getInstance();
-
   // Misc
   public final MainVision v =
       new MainVision(
@@ -124,10 +122,11 @@ public final class RobotContainer {
     if (!Robot.isReal()) {
       subsystemTable
           .getSubTable("Drivetrain")
-          .addPoseLogger(
+          .addStructLogger(
               "simTruePose",
               mainLogMode,
-              () -> drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose());
+              () -> drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose(),
+              Pose2d.struct);
     }
 
     subsystemTable
