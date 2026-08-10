@@ -103,8 +103,9 @@ public final class RobotContainer {
   }
 
   private void configureLogging() {
-    LogMode mainLogMode = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
-    mainLogMode = Robot.isReal() ? mainLogMode : LogMode.NetworkOnly;
+    // LogMode mainLogMode = DriverStation.isFMSAttached() ? LogMode.FileOnly : LogMode.Both;
+    // mainLogMode = Robot.isReal() ? mainLogMode : LogMode.NetworkOnly;
+    LogMode mainLogMode = LogMode.NetworkOnly;
 
     var rootTable = Loggerhead.getInstance().getRootTable();
 
