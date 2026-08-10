@@ -47,6 +47,7 @@ public class MainVision extends LightSubsystem implements Loggable {
     // cameras.add(VisionAndPoseEstConstants.CAM_RIGHT);
 
     for (Camera camera : cameras) {
+      camera.setFinalEstimatedPoseSupplier(() -> drivetrain.getState().Pose);
       camera.setPoseOutput(estConsumer);
       camera.setHeadingSupplier(
           () -> {
@@ -66,10 +67,10 @@ public class MainVision extends LightSubsystem implements Loggable {
 
   public Rotation3d obtainDrivetrainRotation(Drivetrain drivetrain) {
     if (Robot.isReal()) {
-      return drivetrain.getPigeon2().getRotation3d();
+      return new Rotation3d(drivetrain.getState().Pose.getRotation());
     } else {
       // return new Rotation3d(0,0, drivetrain.getPigeon2().getRotation2d());
-      return new Rotation3d(drivetrain.getPigeon2().getRotation2d());
+      return new Rotation3d(drivetrain.getState().Pose.getRotation());
     }
   }
 

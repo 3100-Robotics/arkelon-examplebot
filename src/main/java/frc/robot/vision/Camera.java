@@ -10,8 +10,10 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -35,11 +37,8 @@ public class Camera implements Loggable {
   public final PhotonCamera camera;
   public final PhotonPoseEstimator photonEstimator;
 
-  // public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
-  // public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.1, 1.1, 1.1);
-
   public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
-  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
+  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(1.2, 1.2, 1.2);
 
   private Field2d simField;
 
@@ -62,7 +61,10 @@ public class Camera implements Loggable {
   private EstimateConsumer estimateConsumer =
       (Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs) -> {};
 
+  private Supplier<Pose2d> finalEstimatedPoseSupplier = () -> Pose2d.kZero;
+
   private Supplier<Pair<Rotation3d, Double>> headingSupplier = () -> Pair.of(Rotation3d.kZero, 0.0);
+  private boolean headingSeeded = false;
 
   public Camera(
       AprilTagFieldLayout atagfieldlayout,
@@ -103,25 +105,31 @@ public class Camera implements Loggable {
     this.estimateConsumer = estimateConsumer;
   }
 
+  public void setFinalEstimatedPoseSupplier(Supplier<Pose2d> finalEstimatedPoseSupplier) {
+    this.finalEstimatedPoseSupplier = finalEstimatedPoseSupplier;
+  }
+
   public void update() {
-    var heading = headingSupplier.get();
-    photonEstimator.addHeadingData(heading.getSecond(), heading.getFirst());
+    if (headingSupplier != null) {
+      var heading = headingSupplier.get();
+      photonEstimator.addHeadingData(heading.getSecond(), heading.getFirst());
+    }
 
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
+    Optional<EstimatedRobotPose> visionEstPnP = Optional.empty();
     for (var result : camera.getAllUnreadResults()) {
       if (result.getTargets().size() == 1) {
         if (result.getTargets().get(0).poseAmbiguity > 0.2) {
           return;
         }
       }
-
-      visionEst = photonEstimator.estimatePnpDistanceTrigSolvePose(result);
       // visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
-      currentStrat = "PnpDistanceTrigSolvePose";
-      if (visionEst.isEmpty()) {
-        currentStrat = "LowestAmbiguityPose";
-        visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
-      }
+
+      // currentStrat = "PnpDistanceTrigSolvePose";
+      // if (visionEst.isEmpty()) {
+      //   currentStrat = "LowestAmbiguityPose";
+      //   visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
+      // }
 
       result
           .getMultiTagResult()
@@ -131,12 +139,14 @@ public class Camera implements Loggable {
               },
               () -> multiTagFound = false);
 
-      updateEstimationStdDevs(visionEst, result.getTargets());
-
       latency = result.metadata.getLatencyMillis();
 
+      visionEstPnP = photonEstimator.estimatePnpDistanceTrigSolvePose(result);
+
+      updateEstimationStdDevs(visionEstPnP, result.getTargets());
+
       if (Robot.isSimulation() && VisionAndPoseEstConstants.simulateCoproc) {
-        visionEst.ifPresentOrElse(
+        visionEstPnP.ifPresentOrElse(
             est ->
                 simField
                     .getObject("VisionEstimation" + camName)
@@ -146,18 +156,48 @@ public class Camera implements Loggable {
             });
       }
 
-      visionEst.ifPresent(
-          est -> {
-            // Change our trust in the measurement based on the tags we can see
-            var estStdDevs = getEstimationStdDevs();
+      var estStdDevs = getEstimationStdDevs();
 
-            // if (est.estimatedPose.)
-            // return;
+      photonEstimator
+          .estimateCoprocMultiTagPose(result)
+          .ifPresent(
+              est -> {
+                var modifiedStdDevs = estStdDevs;
+                if (est.estimatedPose
+                        .getTranslation()
+                        .getDistance(
+                            new Translation3d(finalEstimatedPoseSupplier.get().getTranslation()))
+                    > 0.6) {
+                  modifiedStdDevs = estStdDevs.times(3);
+                }
 
-            intRawPose3d = est.estimatedPose;
-            estimateConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-            // SmartDashboard.put("poseRaw_" + camName, est.estimatedPose.toPose2d());
-          });
+                Rotation2d trueHeading = est.estimatedPose.toPose2d().getRotation();
+                if (!headingSeeded) {
+                  photonEstimator.resetHeadingData(est.timestampSeconds, trueHeading);
+                  headingSeeded = true;
+                }
+                estimateConsumer.accept(
+                    est.estimatedPose.toPose2d(), est.timestampSeconds, modifiedStdDevs);
+              });
+
+      if (headingSeeded) {
+        visionEstPnP.ifPresent(
+            est -> {
+              // If pose too far away, jack up the standard devs
+              var modifiedStdDevs = estStdDevs;
+              if (est.estimatedPose
+                      .getTranslation()
+                      .getDistance(
+                          new Translation3d(finalEstimatedPoseSupplier.get().getTranslation()))
+                  > 0.6) {
+                modifiedStdDevs = estStdDevs.times(3);
+              }
+
+              intRawPose3d = est.estimatedPose;
+              estimateConsumer.accept(
+                  est.estimatedPose.toPose2d(), est.timestampSeconds, modifiedStdDevs);
+            });
+      }
     }
   }
 
@@ -214,9 +254,10 @@ public class Camera implements Loggable {
           estStdDevs = kMultiTagStdDevs;
           stdevMode = "Using multitag stdDevs";
         }
+
         // Increase std devs based on (average) distance
-        if (numTags == 1 && avgDist > distanceCutoffMeters) {
-          newStdDevMode = "Cutoff (one tag, long)";
+        if (avgDist > distanceCutoffMeters) {
+          newStdDevMode = "Cutoff (long)";
           estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
         } else {
           newStdDevMode = "Many, distance augmented (one tag, long)";
@@ -233,10 +274,12 @@ public class Camera implements Loggable {
             camName + "rawLatestPose", logMode, () -> intRawPose3d.toPose2d(), Pose2d.struct)
         .addStructLogger(camName + "camPose", logMode, () -> robotToCam, Transform3d.struct)
         .addDoubleLogger(camName + "latency", logMode, () -> latency)
+        .addDoubleLogger(camName + "avgDist", logMode, () -> avgDist)
         .addStringLogger(camName + "curStdDevs", logMode, () -> curStdDevs.toString())
         .addStringLogger(camName + "stdDevMode", logMode, () -> stdevMode)
         .addStringLogger(camName + "newStdDevMode", logMode, () -> newStdDevMode)
         .addStringLogger(camName + "currentStrat", logMode, () -> currentStrat)
-        .addBooleanLogger(camName + "multiTagFound", logMode, () -> multiTagFound);
+        .addBooleanLogger(camName + "multiTagFound", logMode, () -> multiTagFound)
+        .addBooleanLogger(camName + "seededHeading", logMode, () -> headingSeeded);
   }
 }
