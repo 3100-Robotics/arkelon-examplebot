@@ -8,28 +8,16 @@ import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRoller;
 
 public interface IntakeCommands {
-  public static Command pivotLow(IntakePivot intakePivot) {
-    return Commands.run(() -> intakePivot.setState(IntakePivotTarget.Low), intakePivot)
-        .withName("IntakePivotLow");
-  }
-
   public static Command pivotMidLowToggle(IntakePivot intakePivot) {
     return Commands.either(
         IntakeCommands.pivotLow(intakePivot),
         IntakeCommands.pivotMid(intakePivot),
         () -> intakePivot.getState() == IntakePivotTarget.Medium);
+  }
 
-    // return Commands.either(
-    //         () -> {
-    //           if (intakePivot.getState() == IntakePivotTarget.Medium) {
-    //             intakePivot.setState(IntakePivotTarget.Low);
-    //           } else if (intakePivot.getState() == IntakePivotTarget.Low) {
-    //             intakePivot.setState(IntakePivotTarget.Medium);
-    //           }
-    //           ;
-    //         },
-    //         intakePivot)
-    //     .withName("IntakePivotMid");
+  public static Command pivotLow(IntakePivot intakePivot) {
+    return Commands.run(() -> intakePivot.setState(IntakePivotTarget.Low), intakePivot)
+        .withName("IntakePivotLow");
   }
 
   public static Command pivotMid(IntakePivot intakePivot) {

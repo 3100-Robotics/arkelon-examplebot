@@ -237,7 +237,7 @@ public class TunerConstantsFake0621 {
    * program,.
    */
   public static Drivetrain createDrivetrain() {
-    return new Drivetrain(DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight);
+    return new Drivetrain(DrivetrainConstants, 250, FrontLeft, FrontRight, BackLeft, BackRight);
   }
 
   /** Swerve Drive class utilizing CTR Electronics' Phoenix 6 API with the selected device types. */

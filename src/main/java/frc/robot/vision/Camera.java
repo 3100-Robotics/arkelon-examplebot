@@ -115,7 +115,6 @@ public class Camera implements Loggable {
         }
       }
 
-
       visionEst = photonEstimator.estimatePnpDistanceTrigSolvePose(result);
       // visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
       currentStrat = "PnpDistanceTrigSolvePose";
