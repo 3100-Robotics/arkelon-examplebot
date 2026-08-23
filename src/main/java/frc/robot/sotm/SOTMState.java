@@ -3,7 +3,7 @@ package frc.robot.sotm;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
-import com.sbdc.loggerhead.LightSubsystem;
+import com.sbdc.loggerhead.util.LightSubsystem;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;

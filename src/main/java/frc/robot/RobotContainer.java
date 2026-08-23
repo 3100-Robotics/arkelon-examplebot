@@ -4,11 +4,11 @@
 
 package frc.robot;
 
-import com.sbdc.loggerhead.LogMode;
-import com.sbdc.loggerhead.Loggerhead;
-import com.sbdc.loggerhead.compoundlogger.LogCTREDrivetrain;
-import com.sbdc.loggerhead.compoundlogger.LogPowerDistribution;
-import com.sbdc.loggerhead.compoundlogger.LogSubsystemCommands;
+import com.sbdc.loggerhead.logging.LogMode;
+import com.sbdc.loggerhead.logging.Loggerhead;
+import com.sbdc.loggerhead.logging.compoundlogger.LogCTREDrivetrain;
+import com.sbdc.loggerhead.logging.compoundlogger.LogPowerDistribution;
+import com.sbdc.loggerhead.logging.compoundlogger.LogSubsystemCommands;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -206,8 +206,6 @@ public final class RobotContainer {
                             evenController::getRightTriggerAxis,
                             sotmstate::getHeading))));
 
-    evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
-    evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
     drivetrain.setDefaultCommand(
         new DriveTeleop(
             drivetrain,
