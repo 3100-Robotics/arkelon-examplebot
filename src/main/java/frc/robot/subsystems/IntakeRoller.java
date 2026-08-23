@@ -4,11 +4,11 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.sbdc.loggerhead.util.LightSubsystem;
 import com.sbdc.loggerhead.logging.LogMode;
 import com.sbdc.loggerhead.logging.Loggable;
 import com.sbdc.loggerhead.logging.Loggerhead;
 import com.sbdc.loggerhead.logging.Table;
+import com.sbdc.loggerhead.util.LightSubsystem;
 import frc.robot.Targets.IntakeRollerTarget;
 import frc.robot.constants.IntakeConstants;
 import yams.motorcontrollers.SmartMotorController;

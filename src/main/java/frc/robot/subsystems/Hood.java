@@ -3,11 +3,11 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.sbdc.loggerhead.util.LightSubsystem;
 import com.sbdc.loggerhead.logging.LogMode;
 import com.sbdc.loggerhead.logging.Loggable;
 import com.sbdc.loggerhead.logging.Loggerhead;
 import com.sbdc.loggerhead.logging.Table;
+import com.sbdc.loggerhead.util.LightSubsystem;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.constants.ShooterConstants;
 import yams.motorcontrollers.SmartMotorController;
