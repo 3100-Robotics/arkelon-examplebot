@@ -1,10 +1,10 @@
 package frc.robot.vision;
 
-import com.sbdc.loggerhead.LightSubsystem;
-import com.sbdc.loggerhead.LogMode;
-import com.sbdc.loggerhead.Loggable;
-import com.sbdc.loggerhead.Loggerhead;
-import com.sbdc.loggerhead.Table;
+import com.sbdc.loggerhead.logging.LogMode;
+import com.sbdc.loggerhead.logging.Loggable;
+import com.sbdc.loggerhead.logging.Loggerhead;
+import com.sbdc.loggerhead.logging.Table;
+import com.sbdc.loggerhead.util.LightSubsystem;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Pair;

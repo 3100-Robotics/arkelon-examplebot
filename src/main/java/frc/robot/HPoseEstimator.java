@@ -1,10 +1,10 @@
 package frc.robot;
 
-import com.sbdc.loggerhead.LightSubsystem;
-import com.sbdc.loggerhead.LogMode;
-import com.sbdc.loggerhead.Loggable;
-import com.sbdc.loggerhead.Loggerhead;
-import com.sbdc.loggerhead.Table;
+import com.sbdc.loggerhead.logging.LogMode;
+import com.sbdc.loggerhead.logging.Loggable;
+import com.sbdc.loggerhead.logging.Loggerhead;
+import com.sbdc.loggerhead.logging.Table;
+import com.sbdc.loggerhead.util.LightSubsystem;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -71,7 +71,9 @@ public class HPoseEstimator extends LightSubsystem implements Loggable {
   }
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
-    parentTable.addPoseLogger("estimatedPose", logMode, estWithVision::getEstimatedPosition);
-    parentTable.addPoseLogger("estimatedPoseNoVision", logMode, estNoVision::getEstimatedPosition);
+    parentTable.addStructLogger(
+        "estimatedPose", logMode, estWithVision::getEstimatedPosition, Pose2d.struct);
+    parentTable.addStructLogger(
+        "estimatedPoseNoVision", logMode, estNoVision::getEstimatedPosition, Pose2d.struct);
   }
 }

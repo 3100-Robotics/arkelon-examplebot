@@ -5,11 +5,11 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.sbdc.loggerhead.LightSubsystem;
-import com.sbdc.loggerhead.LogMode;
-import com.sbdc.loggerhead.Loggable;
-import com.sbdc.loggerhead.Loggerhead;
-import com.sbdc.loggerhead.Table;
+import com.sbdc.loggerhead.logging.LogMode;
+import com.sbdc.loggerhead.logging.Loggable;
+import com.sbdc.loggerhead.logging.Loggerhead;
+import com.sbdc.loggerhead.logging.Table;
+import com.sbdc.loggerhead.util.LightSubsystem;
 import frc.robot.Targets.IntakePivotTarget;
 import frc.robot.constants.IntakeConstants;
 import yams.motorcontrollers.SmartMotorController;

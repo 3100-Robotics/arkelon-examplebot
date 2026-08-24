@@ -1,9 +1,9 @@
 package frc.robot.vision;
 
-import com.sbdc.loggerhead.LogMode;
-import com.sbdc.loggerhead.Loggable;
-import com.sbdc.loggerhead.Loggerhead;
-import com.sbdc.loggerhead.Table;
+import com.sbdc.loggerhead.logging.LogMode;
+import com.sbdc.loggerhead.logging.Loggable;
+import com.sbdc.loggerhead.logging.Loggerhead;
+import com.sbdc.loggerhead.logging.Table;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Pair;
@@ -77,7 +77,7 @@ public class Camera implements Loggable {
     this.distanceCutoffMeters = distanceCutoffMeters;
 
     tagLayout = atagfieldlayout;
-    robotToCam = robotCameraTransform;
+    this.robotToCam = robotCameraTransform;
     this.camName = camName;
     camera = new PhotonCamera(this.camName);
     photonEstimator = new PhotonPoseEstimator(this.tagLayout, this.robotToCam);
@@ -229,7 +229,9 @@ public class Camera implements Loggable {
 
   public void setupLogging(Table parentTable, LogMode logMode, Loggerhead loggerhead) {
     parentTable
-        .addPoseLogger(camName + "rawLatestPose", logMode, () -> intRawPose3d.toPose2d())
+        .addStructLogger(
+            camName + "rawLatestPose", logMode, () -> intRawPose3d.toPose2d(), Pose2d.struct)
+        .addStructLogger(camName + "camPose", logMode, () -> robotToCam, Transform3d.struct)
         .addDoubleLogger(camName + "latency", logMode, () -> latency)
         .addStringLogger(camName + "curStdDevs", logMode, () -> curStdDevs.toString())
         .addStringLogger(camName + "stdDevMode", logMode, () -> stdevMode)

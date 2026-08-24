@@ -1,0 +1,263 @@
+{
+  "hubs": [
+    {
+      "x": 410,
+      "y": 215,
+      "width": 1337,
+      "height": 753,
+      "state": {
+        "sidebar": {
+          "width": 295,
+          "expanded": [
+            "/NT/Tuning/highMotor",
+            "/NT/Tuning/highMotor/motor",
+            "/SmartDashboard/evenCtl",
+            "/DriverStation/Joystick0",
+            "/Driver1Station",
+            "/Driver1Station/Joystick0",
+            "/Driver1Station/Joystick0/POVs",
+            "/DriverStation",
+            "/testKey",
+            "/Subsystems/IntakeRoller/IntakeRollerCommands",
+            "/Subsystems/IntakePivot/IntakePivotCommands",
+            "/Subsystems/Indexer/IndexerCommands",
+            "/Subsystems/Hood/HoodCommands",
+            "/Subsystems/Flywheels/FlywheelsCommands",
+            "/Subsystems/Drivetrain/Pose/rotation",
+            "/Shuffleboard/.recording",
+            "/Shuffleboard/.metadata",
+            "/LiveWindow/.status",
+            "/NT",
+            "/NT/TestSubTable",
+            "/NT/SmartDashboard",
+            "/Subsystems/IntakeRoller/ECommands",
+            "/Subsystems/IntakePivot/DCommands",
+            "/Tuning/hoodMotor",
+            "/Tuning/hoodMotor/closedloop",
+            "/Tuning/hoodMotor/closedloop/feedback",
+            "/Mechanisms/hoodMotor",
+            "/SmartDashboard/Mechanisms/Commands",
+            "/SmartDashboard/Mechanisms/Commands/Hood/Live Tuning",
+            "/Subsystems/Vision",
+            "/SmartDashboard/VisionPoseArrays",
+            "/TestSubTable",
+            "/TestSubTable/dtb",
+            "/TestSubTable/evenCtl/POVs",
+            "/TestSubTable/evenCtl/Buttons",
+            "/TestSubTable/evenCtl/Axes",
+            "/Drivetrain",
+            "/photonvision/left",
+            "/SmartDashboard/VisionSystemSim-VisionSim",
+            "/SmartDashboard/VisionSystemSim-VisionSim/Sim Field",
+            "/SmartDashboard/purevision",
+            "/SmartDashboard/Drive",
+            "/Subsystems",
+            "/Subsystems/Drivetrain",
+            "/Vision",
+            "/Vision/PoseGetter",
+            "/Subsystems/Drivetrain/Swerve",
+            "/Subsystems/Drivetrain/Swerve/Pose"
+          ]
+        },
+        "tabs": {
+          "selected": 3,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "wesgn9w5pxokggi529dnldv706g1y2ap",
+              "renderer": "",
+              "controlsHeight": 0
+            },
+            {
+              "type": 3,
+              "title": "3D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:Vision/rightrawLatestPose",
+                    "logType": "Pose2d",
+                    "visible": false,
+                    "options": {
+                      "model": "2026 KitBot",
+                      "color": "#ff8c00"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:Vision/leftrawLatestPose",
+                    "logType": "Pose2d",
+                    "visible": false,
+                    "options": {
+                      "model": "2026 KitBot",
+                      "color": "#ff8c00"
+                    }
+                  },
+                  {
+                    "type": "robot",
+                    "logKey": "NT:Subsystems/Drivetrain/simTruePose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2026 KitBot"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:Subsystems/Drivetrain/estimatedPose",
+                    "logType": "Pose2d",
+                    "visible": false,
+                    "options": {
+                      "model": "2026 KitBot",
+                      "color": "#ff0000"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:Subsystems/Drivetrain/Swerve/Pose/Robot",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2026 KitBot",
+                      "color": "#00ffff"
+                    }
+                  }
+                ],
+                "game": "FRC:2026 Field"
+              },
+              "controllerUUID": "zwsg4gkyfled2q4tajd2tavkklnzdfw8",
+              "renderer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -6.189742432585739,
+                  1.5727623985126036,
+                  0.28568128789039937
+                ],
+                "cameraTarget": [
+                  -5.6646666614240475,
+                  -0.06938159181586974,
+                  1.262637874908476
+                ]
+              },
+              "controlsHeight": 294
+            },
+            {
+              "type": 2,
+              "title": "2D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:Subsystems/Drivetrain/simTruePose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "bumpers": ""
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:Subsystems/Drivetrain/estimatedPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:Subsystems/Drivetrain/Swerve/Pose/Robot",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff0000"
+                    }
+                  }
+                ],
+                "field": "FRC:2026 Field",
+                "orientation": 0,
+                "size": "large"
+              },
+              "controllerUUID": "mawlorx2n7k2p3tlulu82twj0zwgx42x",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 3,
+              "title": "3D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:Subsystems/Drivetrain/estimatedPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2026 KitBot",
+                      "color": "#ff0000"
+                    }
+                  },
+                  {
+                    "type": "robot",
+                    "logKey": "NT:Subsystems/Drivetrain/simTruePose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2026 KitBot"
+                    }
+                  },
+                  {
+                    "type": "axes",
+                    "logKey": "NT:Vision/rightcamPose",
+                    "logType": "Transform3d",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "axes",
+                    "logKey": "NT:Vision/leftcamPose",
+                    "logType": "Transform3d",
+                    "visible": true,
+                    "options": {}
+                  }
+                ],
+                "game": "FRC:2026 Field"
+              },
+              "controllerUUID": "jm8e2daapom6s8eoliwcd74qufgnakfx",
+              "renderer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -4.183073504967006,
+                  3.965476524605904,
+                  7.744114362429735
+                ],
+                "cameraTarget": [
+                  -1.4447943088144715,
+                  -0.723450749601008,
+                  1.8742772504445806
+                ]
+              },
+              "controlsHeight": 200
+            },
+            {
+              "type": 5,
+              "title": "Console",
+              "controller": "NT:Vision/leftcurStdDevs",
+              "controllerUUID": "8nbytcm9nz34grtrfg2a80y99me5qy6r",
+              "renderer": {
+                "highlight": false
+              },
+              "controlsHeight": 0
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "26.0.0"
+}
