@@ -207,8 +207,8 @@ public final class RobotContainer {
                             evenController::getRightTriggerAxis,
                             sotmstate::getHeading))));
 
-    evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
-    evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
+    // evenController.b().onTrue(Commands.runOnce(() -> Loggerhead.getInstance().cleanLoggers()));
+    // evenController.x().onTrue(Commands.runOnce(() -> configureLogging()));
     drivetrain.setDefaultCommand(
         new DriveTeleop(
             drivetrain,
