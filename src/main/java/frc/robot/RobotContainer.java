@@ -41,8 +41,17 @@ import frc.robot.utils.DashboardStaticShotMap;
 import frc.robot.utils.DynamicShotMap;
 import frc.robot.utils.ShotMap;
 import frc.robot.vision.MainVision;
+import java.util.HashMap;
 
 public final class RobotContainer {
+  public static enum ArkelonActions {
+    shootCommand,
+    intakeHighCommand,
+    intakeMidLowToggleCommand,
+    intakeRunCommand,
+    resetHeadingCommand;
+  }
+
   private static final RobotContainer INSTANCE = new RobotContainer();
 
   public static RobotContainer getInstance() {
@@ -81,13 +90,20 @@ public final class RobotContainer {
                   drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose(),
           drivetrain);
 
-  public final CommandXboxController evenController = new CommandXboxController(0);
+  public final CommandXboxController driverController = new CommandXboxController(0);
+  public final CommandXboxController coDriverController = new CommandXboxController(1);
+  private final HashMap<String, Command> arkelonCommandMap = new HashMap<>();
 
   private final PowerDistribution pdh = new PowerDistribution(14, ModuleType.kRev);
 
   public RobotContainer() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
-    configureBindings();
+    createActionMap();
+
+    // DO replace these function calls with the new ones you currently want to use then redeploy
+    // code
+    configureCoDriverBindings();
+    configureDriverBindings();
 
     Loggerhead.getInstance()
         .applyToConfigurator(
@@ -179,63 +195,83 @@ public final class RobotContainer {
                 .getDistance(MatchContext.getInstance().getHubTranslation()));
   }
 
-  private void configureBindings() {
-    evenController
-        .a()
-        .whileTrue(
-            new ProxyCommand(new Shoot(flywheels, hood, indexer, dynamicShotMap))
-                .alongWith(
-                    new ProxyCommand(
-                        new DrivePointAtAngle(
-                            drivetrain,
-                            evenController::getLeftY,
-                            evenController::getLeftX,
-                            evenController::getRightTriggerAxis,
-                            sotmstate::getHeading))));
+  private void createActionMap() {
+    Command shootCommand =
+        new ProxyCommand(new Shoot(flywheels, hood, indexer, dynamicShotMap))
+            .alongWith(
+                new ProxyCommand(
+                    new DrivePointAtAngle(
+                        drivetrain,
+                        driverController::getLeftY,
+                        driverController::getLeftX,
+                        driverController::getRightTriggerAxis,
+                        sotmstate::getHeading)));
 
-    evenController
-        .b()
-        .whileTrue(
-            new ProxyCommand(new Shoot(flywheels, hood, indexer, dashShotMap))
-                .alongWith(
-                    new ProxyCommand(
-                        new DrivePointAtAngle(
-                            drivetrain,
-                            evenController::getLeftY,
-                            evenController::getLeftX,
-                            evenController::getRightTriggerAxis,
-                            sotmstate::getHeading))));
+    Command resetHeadingCommand =
+        Commands.runOnce(
+            () -> {
+              drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
+              hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
+              drivetrain.getPigeon2().reset();
+
+              if (!Robot.isReal()) {
+                drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
+                    new Pose2d(1, 1, Rotation2d.kZero));
+              }
+            });
+
+    Command intakeHighCommand = IntakeCommands.pivotHigh(intakePivot);
+    Command intakeMidLowToggleCommand = IntakeCommands.pivotMidLowToggle(intakePivot);
+    Command intakeRunCommand = IntakeCommands.rollerForward(intakeRoller);
+
+    arkelonCommandMap.put("shootCommand", shootCommand);
+    arkelonCommandMap.put("intakeHighCommand", intakeHighCommand);
+    arkelonCommandMap.put("intakeMidLowToggleCommand", intakeMidLowToggleCommand);
+    arkelonCommandMap.put("intakeRunCommand", intakeRunCommand);
+    arkelonCommandMap.put("resetHeadingCommand", resetHeadingCommand);
+  }
+
+  private Command getAction(ArkelonActions action) {
+    return arkelonCommandMap.get(action.toString());
+  }
+
+  // The configureDriver and configureCoDriver shoube duplicated
+  // every time someone wants to use a different control scheme.
+  // Do not modify the base functions
+  // The new functions shouldbe called `configure<name><CoDriver/Driver>Binding`
+  public void configureDriverBindings() {
+    driverController.a().whileTrue(getAction(ArkelonActions.shootCommand));
+
+    driverController.b().whileTrue(getAction(ArkelonActions.shootCommand));
+
+    driverController.leftTrigger().whileTrue(getAction(ArkelonActions.intakeHighCommand));
+    driverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
+    driverController.leftBumper().whileTrue(getAction(ArkelonActions.intakeRunCommand));
+
+    driverController.povDown().onTrue(getAction(ArkelonActions.resetHeadingCommand));
 
     drivetrain.setDefaultCommand(
         new DriveTeleop(
             drivetrain,
-            evenController::getLeftY,
-            evenController::getLeftX,
-            () -> -evenController.getRightX(),
-            evenController::getRightTriggerAxis));
+            driverController::getLeftY,
+            driverController::getLeftX,
+            () -> -driverController.getRightX(),
+            driverController::getRightTriggerAxis));
+  }
 
-    evenController.leftTrigger().whileTrue(IntakeCommands.pivotHigh(intakePivot));
-    evenController.rightBumper().whileTrue(IntakeCommands.pivotMidLowToggle(intakePivot));
-    evenController.leftBumper().whileTrue(IntakeCommands.rollerForward(intakeRoller));
+  public void configureCoDriverBindings() {
+    coDriverController.a().whileTrue(getAction(ArkelonActions.shootCommand));
 
-    evenController
-        .povDown()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
-                  hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
-                  drivetrain.getPigeon2().reset();
+    coDriverController.b().whileTrue(getAction(ArkelonActions.shootCommand));
 
-                  if (!Robot.isReal()) {
-                    drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
-                        new Pose2d(1, 1, Rotation2d.kZero));
-                  }
-                }));
+    coDriverController.leftTrigger().whileTrue(getAction(ArkelonActions.intakeHighCommand));
+    coDriverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
+    coDriverController.leftBumper().whileTrue(getAction(ArkelonActions.intakeRunCommand));
+
+    coDriverController.povDown().onTrue(getAction(ArkelonActions.resetHeadingCommand));
   }
 
   public Command getAutonomousCommand() {
-    // return Commands.print("No autonomous command configured");
     return Commands.sequence(
             new IndexerCommands.ReverseIndexer(indexer).withTimeout(2),
             ShooterCommands.shooterDynamic(hood, flywheels, dynamicShotMap).withTimeout(3))
