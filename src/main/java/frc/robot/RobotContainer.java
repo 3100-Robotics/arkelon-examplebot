@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -105,6 +106,8 @@ public final class RobotContainer {
     configureCoDriverBindings();
     configureDriverBindings();
 
+    SmartDashboard.putData(getAction(ArkelonActions.resetHeadingCommand));
+
     Loggerhead.getInstance()
         .applyToConfigurator(
             configurator ->
@@ -131,8 +134,11 @@ public final class RobotContainer {
     subsystemTable
         .getSubTable("Drivetrain")
         .addCompoundLogger(new LogSubsystemCommands("Commands", mainLogMode, drivetrain))
-        .addCompoundLogger(new LogCTREDrivetrain("Swerve", mainLogMode, drivetrain))
+        .addCompoundLogger(new LogCTREDrivetrain("LogCTREBultin", mainLogMode, drivetrain))
+        .getSubTable("HPose")
         .addLoggable(hPoseEstimator, mainLogMode)
+        .getParent()
+        .getSubTable("drivetrainCustom")
         .addLoggable(drivetrain, mainLogMode);
 
     if (!Robot.isReal()) {
@@ -212,7 +218,9 @@ public final class RobotContainer {
             () -> {
               drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
               hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
-              drivetrain.getPigeon2().reset();
+              // drivetrain.getPigeon2().setYaw(Degrees.of(0));
+              // drivetrain.getPigeon2().reset();
+              v.p2vwrapper.zero();
 
               if (!Robot.isReal()) {
                 drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
