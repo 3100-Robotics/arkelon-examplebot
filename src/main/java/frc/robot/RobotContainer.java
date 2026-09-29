@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.sbdc.loggerhead.logging.LogMode;
 import com.sbdc.loggerhead.logging.Loggerhead;
 import com.sbdc.loggerhead.logging.compoundlogger.LogCTREDrivetrain;
@@ -42,15 +44,32 @@ import frc.robot.utils.DashboardStaticShotMap;
 import frc.robot.utils.DynamicShotMap;
 import frc.robot.utils.ShotMap;
 import frc.robot.vision.MainVision;
+import java.util.EnumSet;
 import java.util.HashMap;
 
 public final class RobotContainer {
   public static enum ArkelonActions {
     shootCommand,
+    autoAlignCommand,
     intakeHighCommand,
     intakeMidLowToggleCommand,
     intakeRunCommand,
-    resetHeadingCommand;
+
+    resetHeadingAllCommand,
+    resetHeadingSimCommand,
+    resetHeadingCTRECommand,
+    resetHeadingGyroCommand,
+    resetHeadingGyroWrapperCommand,
+    resetHeadingHPoseCommand,
+    ;
+  }
+
+  public static enum PoseHeadingResetParams {
+    gyroReset,
+    gyroWrapperReset,
+    simPoseReset,
+    CTREReset,
+    hPoseReset;
   }
 
   private static final RobotContainer INSTANCE = new RobotContainer();
@@ -106,7 +125,12 @@ public final class RobotContainer {
     configureCoDriverBindings();
     configureDriverBindings();
 
-    SmartDashboard.putData(getAction(ArkelonActions.resetHeadingCommand));
+    SmartDashboard.putData(getAction(ArkelonActions.resetHeadingAllCommand, true));
+    SmartDashboard.putData(getAction(ArkelonActions.resetHeadingCTRECommand, true));
+    SmartDashboard.putData(getAction(ArkelonActions.resetHeadingGyroCommand, true));
+    SmartDashboard.putData(getAction(ArkelonActions.resetHeadingGyroWrapperCommand, true));
+    SmartDashboard.putData(getAction(ArkelonActions.resetHeadingHPoseCommand, true));
+    SmartDashboard.putData(getAction(ArkelonActions.resetHeadingSimCommand, true));
 
     Loggerhead.getInstance()
         .applyToConfigurator(
@@ -201,46 +225,87 @@ public final class RobotContainer {
                 .getDistance(MatchContext.getInstance().getHubTranslation()));
   }
 
+  private void resetPoseAndHeadings(EnumSet<PoseHeadingResetParams> resetParams) {
+    if (resetParams.contains(PoseHeadingResetParams.CTREReset)) {
+      drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
+    }
+
+    if (resetParams.contains(PoseHeadingResetParams.hPoseReset)) {
+      hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
+    }
+
+    if (resetParams.contains(PoseHeadingResetParams.gyroWrapperReset)) {
+      drivetrain.getPigeon2().setYaw(Degrees.of(0));
+      drivetrain.getPigeon2().reset();
+    }
+
+    if (resetParams.contains(PoseHeadingResetParams.gyroReset)) {
+      v.p2vwrapper.zero();
+    }
+
+    if (!Robot.isReal() && resetParams.contains(PoseHeadingResetParams.simPoseReset)) {
+      drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
+          new Pose2d(1, 1, Rotation2d.kZero));
+    }
+  }
+
   private void createActionMap() {
-    Command shootCommand =
-        new ProxyCommand(new Shoot(flywheels, hood, indexer, dynamicShotMap))
-            .alongWith(
-                new ProxyCommand(
-                    new DrivePointAtAngle(
-                        drivetrain,
-                        driverController::getLeftY,
-                        driverController::getLeftX,
-                        driverController::getRightTriggerAxis,
-                        sotmstate::getHeading)));
+    Command shootCommand = new Shoot(flywheels, hood, indexer, dynamicShotMap);
 
-    Command resetHeadingCommand =
-        Commands.runOnce(
-            () -> {
-              drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
-              hPoseEstimator.reset(new Pose2d(1, 1, Rotation2d.kZero), true, true);
-              // drivetrain.getPigeon2().setYaw(Degrees.of(0));
-              // drivetrain.getPigeon2().reset();
-              v.p2vwrapper.zero();
-
-              if (!Robot.isReal()) {
-                drivetrain.mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(
-                    new Pose2d(1, 1, Rotation2d.kZero));
-              }
-            });
+    Command autoAlignCommand =
+        new ProxyCommand(
+            new DrivePointAtAngle(
+                drivetrain,
+                driverController::getLeftY,
+                driverController::getLeftX,
+                driverController::getRightTriggerAxis,
+                sotmstate::getHeading));
 
     Command intakeHighCommand = IntakeCommands.pivotHigh(intakePivot);
     Command intakeMidLowToggleCommand = IntakeCommands.pivotMidLowToggle(intakePivot);
     Command intakeRunCommand = IntakeCommands.rollerForward(intakeRoller);
 
+    Command resetHeadingAllCommand =
+        Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.allOf(PoseHeadingResetParams.class)));
+
+    Command resetHeadingSimCommand =
+        Commands.runOnce(
+            () -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.simPoseReset)));
+
+    Command resetHeadingCTRECommand =
+        Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.CTREReset)));
+
+    Command resetHeadingGyroCommand =
+        Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.gyroReset)));
+
+    Command resetHeadingGyroWrapperCommand =
+        Commands.runOnce(
+            () -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.gyroWrapperReset)));
+
+    Command resetHeadingHPoseCommand =
+        Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.hPoseReset)));
+
     arkelonCommandMap.put("shootCommand", shootCommand);
+    arkelonCommandMap.put("autoAlignCommand", autoAlignCommand);
     arkelonCommandMap.put("intakeHighCommand", intakeHighCommand);
     arkelonCommandMap.put("intakeMidLowToggleCommand", intakeMidLowToggleCommand);
     arkelonCommandMap.put("intakeRunCommand", intakeRunCommand);
-    arkelonCommandMap.put("resetHeadingCommand", resetHeadingCommand);
+
+    arkelonCommandMap.put("resetHeadingAllCommand", resetHeadingAllCommand);
+    arkelonCommandMap.put("resetHeadingSimCommand", resetHeadingSimCommand);
+    arkelonCommandMap.put("resetHeadingCTRECommand", resetHeadingCTRECommand);
+    arkelonCommandMap.put("resetHeadingGyroCommand", resetHeadingGyroCommand);
+    arkelonCommandMap.put("resetHeadingGyroWrapperCommand", resetHeadingGyroWrapperCommand);
+    arkelonCommandMap.put("resetHeadingHPoseCommand", resetHeadingHPoseCommand);
   }
 
   private Command getAction(ArkelonActions action) {
     return arkelonCommandMap.get(action.toString());
+  }
+
+  private Command getAction(ArkelonActions action, boolean proxyAndName) {
+    if (proxyAndName) {return new ProxyCommand(arkelonCommandMap.get(action.toString())).withName(action.toString());}
+    else {return arkelonCommandMap.get(action.toString());}
   }
 
   // The configureDriver and configureCoDriver shoube duplicated
@@ -248,7 +313,10 @@ public final class RobotContainer {
   // Do not modify the base functions
   // The new functions shouldbe called `configure<name><CoDriver/Driver>Binding`
   public void configureDriverBindings() {
-    driverController.a().whileTrue(getAction(ArkelonActions.shootCommand));
+    driverController
+        .a()
+        // .whileTrue(getAction(ArkelonActions.shootCommand))
+        .whileTrue(getAction(ArkelonActions.autoAlignCommand));
 
     driverController.b().whileTrue(getAction(ArkelonActions.shootCommand));
 
@@ -256,7 +324,7 @@ public final class RobotContainer {
     driverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
     driverController.leftBumper().whileTrue(getAction(ArkelonActions.intakeRunCommand));
 
-    driverController.povDown().onTrue(getAction(ArkelonActions.resetHeadingCommand));
+    driverController.povDown().onTrue(getAction(ArkelonActions.resetHeadingAllCommand));
 
     drivetrain.setDefaultCommand(
         new DriveTeleop(
@@ -276,7 +344,7 @@ public final class RobotContainer {
     coDriverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
     coDriverController.leftBumper().whileTrue(getAction(ArkelonActions.intakeRunCommand));
 
-    coDriverController.povDown().onTrue(getAction(ArkelonActions.resetHeadingCommand));
+    coDriverController.povDown().onTrue(getAction(ArkelonActions.resetHeadingAllCommand));
   }
 
   public Command getAutonomousCommand() {
