@@ -304,8 +304,11 @@ public final class RobotContainer {
   }
 
   private Command getAction(ArkelonActions action, boolean proxyAndName) {
-    if (proxyAndName) {return new ProxyCommand(arkelonCommandMap.get(action.toString())).withName(action.toString());}
-    else {return arkelonCommandMap.get(action.toString());}
+    if (proxyAndName) {
+      return new ProxyCommand(arkelonCommandMap.get(action.toString())).withName(action.toString());
+    } else {
+      return arkelonCommandMap.get(action.toString());
+    }
   }
 
   // The configureDriver and configureCoDriver shoube duplicated
