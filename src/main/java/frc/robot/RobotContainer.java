@@ -265,7 +265,7 @@ public final class RobotContainer {
     Command intakeMidLowToggleCommand = IntakeCommands.pivotMidLowToggle(intakePivot);
     Command intakeRunCommand = IntakeCommands.rollerForward(intakeRoller);
 
-    Command resetHeadingAllCommand =
+    Command resetPoseAndHeadingCommand =
         Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.allOf(PoseHeadingResetParams.class)));
 
     Command resetHeadingSimCommand =
@@ -275,7 +275,7 @@ public final class RobotContainer {
     Command resetHeadingCTRECommand =
         Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.CTREReset)));
 
-    Command resetHeadingGyroCommand =
+    Command resetVisionHeadingOffsetCommand =
         Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.gyroReset)));
 
     Command resetHeadingGyroWrapperCommand =
@@ -291,10 +291,10 @@ public final class RobotContainer {
     arkelonCommandMap.put("intakeMidLowToggleCommand", intakeMidLowToggleCommand);
     arkelonCommandMap.put("intakeRunCommand", intakeRunCommand);
 
-    arkelonCommandMap.put("resetHeadingAllCommand", resetHeadingAllCommand);
+    arkelonCommandMap.put("resetHeadingAllCommand", resetPoseAndHeadingCommand);
     arkelonCommandMap.put("resetHeadingSimCommand", resetHeadingSimCommand);
     arkelonCommandMap.put("resetHeadingCTRECommand", resetHeadingCTRECommand);
-    arkelonCommandMap.put("resetHeadingGyroCommand", resetHeadingGyroCommand);
+    arkelonCommandMap.put("resetHeadingGyroCommand", resetVisionHeadingOffsetCommand);
     arkelonCommandMap.put("resetHeadingGyroWrapperCommand", resetHeadingGyroWrapperCommand);
     arkelonCommandMap.put("resetHeadingHPoseCommand", resetHeadingHPoseCommand);
   }
