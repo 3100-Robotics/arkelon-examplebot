@@ -318,7 +318,7 @@ public final class RobotContainer {
   public void configureDriverBindings() {
     driverController
         .a()
-        // .whileTrue(getAction(ArkelonActions.shootCommand))
+        .whileTrue(getAction(ArkelonActions.shootCommand))
         .whileTrue(getAction(ArkelonActions.autoAlignCommand));
 
     driverController.b().whileTrue(getAction(ArkelonActions.shootCommand));
