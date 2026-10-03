@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import com.sbdc.loggerhead.logging.LogMode;
 import com.sbdc.loggerhead.logging.Loggerhead;
+import com.sbdc.loggerhead.logging.OneShot;
 import com.sbdc.loggerhead.logging.compoundlogger.LogCTREDrivetrain;
 import com.sbdc.loggerhead.logging.compoundlogger.LogPowerDistribution;
 import com.sbdc.loggerhead.logging.compoundlogger.LogSubsystemCommands;
@@ -226,6 +227,7 @@ public final class RobotContainer {
   }
 
   private void resetPoseAndHeadings(EnumSet<PoseHeadingResetParams> resetParams) {
+    OneShot.setString("resetPoseAndHeadingsHappened", resetParams.toString());
     if (resetParams.contains(PoseHeadingResetParams.CTREReset)) {
       drivetrain.resetPose(new Pose2d(1, 1, Rotation2d.kZero));
     }
@@ -351,9 +353,6 @@ public final class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.sequence(
-            new IndexerCommands.ReverseIndexer(indexer).withTimeout(2),
-            ShooterCommands.shooterDynamic(hood, flywheels, dynamicShotMap).withTimeout(3))
-        .withTimeout(5);
+    return Commands.none();
   }
 }
