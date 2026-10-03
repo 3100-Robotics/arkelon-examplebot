@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
 
 import com.sbdc.loggerhead.logging.LogMode;
 import com.sbdc.loggerhead.logging.Loggerhead;
@@ -18,6 +19,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.net.WebServer;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -27,9 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.ShooterCommands;
 import frc.robot.commands.drivetrain.DrivePointAtAngle;
 import frc.robot.commands.drivetrain.DriveTeleop;
 import frc.robot.commands.intake.IntakeCommands;
@@ -55,6 +56,7 @@ public final class RobotContainer {
     intakeHighCommand,
     intakeMidLowToggleCommand,
     intakeRunCommand,
+    passCommand,
 
     resetHeadingAllCommand,
     resetHeadingSimCommand,
@@ -263,6 +265,30 @@ public final class RobotContainer {
                 driverController::getRightTriggerAxis,
                 sotmstate::getHeading));
 
+    Command passCommand =
+        new ProxyCommand(
+            new Shoot(
+                flywheels,
+                hood,
+                indexer,
+                new ShotMap() {
+
+                  @Override
+                  public String getTarget() {
+                    return "passShot";
+                  }
+
+                  @Override
+                  public AngularVelocity getFlywheelSpeed() {
+                    return RPM.of(4000);
+                  }
+
+                  @Override
+                  public Angle getHoodAngle() {
+                    return Degrees.of(40);
+                  }
+                }));
+
     Command intakeHighCommand = IntakeCommands.pivotHigh(intakePivot);
     Command intakeMidLowToggleCommand = IntakeCommands.pivotMidLowToggle(intakePivot);
     Command intakeRunCommand = IntakeCommands.rollerForward(intakeRoller);
@@ -288,6 +314,7 @@ public final class RobotContainer {
         Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.hPoseReset)));
 
     arkelonCommandMap.put("shootCommand", shootCommand);
+    arkelonCommandMap.put("passCommand", passCommand);
     arkelonCommandMap.put("autoAlignCommand", autoAlignCommand);
     arkelonCommandMap.put("intakeHighCommand", intakeHighCommand);
     arkelonCommandMap.put("intakeMidLowToggleCommand", intakeMidLowToggleCommand);
@@ -323,7 +350,7 @@ public final class RobotContainer {
         .whileTrue(getAction(ArkelonActions.shootCommand))
         .whileTrue(getAction(ArkelonActions.autoAlignCommand));
 
-    driverController.b().whileTrue(getAction(ArkelonActions.shootCommand));
+    driverController.b().whileTrue(getAction(ArkelonActions.passCommand));
 
     driverController.leftTrigger().whileTrue(getAction(ArkelonActions.intakeHighCommand));
     driverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
