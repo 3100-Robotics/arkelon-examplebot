@@ -47,7 +47,7 @@ public class MainVision extends LightSubsystem implements Loggable {
 
     // cameras.add(VisionConstants.CAM_EVAN);
     cameras.add(VisionAndPoseEstConstants.CAM_LEFT);
-    // cameras.add(VisionAndPoseEstConstants.CAM_RIGHT);
+    cameras.add(VisionAndPoseEstConstants.CAM_RIGHT);
 
     for (Camera camera : cameras) {
       camera.setPoseOutput(estConsumer);
