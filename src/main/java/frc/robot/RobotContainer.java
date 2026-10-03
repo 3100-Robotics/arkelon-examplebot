@@ -370,7 +370,7 @@ public final class RobotContainer {
   public void configureCoDriverBindings() {
     coDriverController.a().whileTrue(getAction(ArkelonActions.shootCommand));
 
-    coDriverController.b().whileTrue(getAction(ArkelonActions.shootCommand));
+    coDriverController.b().whileTrue(getAction(ArkelonActions.passCommand));
 
     coDriverController.leftTrigger().whileTrue(getAction(ArkelonActions.intakeHighCommand));
     coDriverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
