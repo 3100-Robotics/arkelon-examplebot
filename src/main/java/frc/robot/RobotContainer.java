@@ -57,6 +57,7 @@ public final class RobotContainer {
     intakeMidLowToggleCommand,
     intakeRunCommand,
     passCommand,
+    staticShotCommand,
 
     resetHeadingAllCommand,
     resetHeadingSimCommand,
@@ -289,6 +290,30 @@ public final class RobotContainer {
                   }
                 }));
 
+    Command staticShotCommand =
+        new ProxyCommand(
+            new Shoot(
+                flywheels,
+                hood,
+                indexer,
+                new ShotMap() {
+
+                  @Override
+                  public String getTarget() {
+                    return "passShot";
+                  }
+
+                  @Override
+                  public AngularVelocity getFlywheelSpeed() {
+                    return RPM.of(2600);
+                  }
+
+                  @Override
+                  public Angle getHoodAngle() {
+                    return Degrees.of(17);
+                  }
+                }));
+
     Command intakeHighCommand = IntakeCommands.pivotHigh(intakePivot);
     Command intakeMidLowToggleCommand = IntakeCommands.pivotMidLowToggle(intakePivot);
     Command intakeRunCommand = IntakeCommands.rollerForward(intakeRoller);
@@ -314,6 +339,7 @@ public final class RobotContainer {
         Commands.runOnce(() -> resetPoseAndHeadings(EnumSet.of(PoseHeadingResetParams.hPoseReset)));
 
     arkelonCommandMap.put("shootCommand", shootCommand);
+    arkelonCommandMap.put("staticShotCommand", staticShotCommand);
     arkelonCommandMap.put("passCommand", passCommand);
     arkelonCommandMap.put("autoAlignCommand", autoAlignCommand);
     arkelonCommandMap.put("intakeHighCommand", intakeHighCommand);
@@ -329,7 +355,10 @@ public final class RobotContainer {
   }
 
   private Command getAction(ArkelonActions action) {
-    return arkelonCommandMap.get(action.toString());
+    return arkelonCommandMap
+        .get(action.toString())
+        .asProxy()
+        .beforeStarting(() -> SmartDashboard.putBoolean(action.toString(), true));
   }
 
   private Command getAction(ArkelonActions action, boolean proxyAndName) {
@@ -352,6 +381,8 @@ public final class RobotContainer {
 
     driverController.b().whileTrue(getAction(ArkelonActions.passCommand));
 
+    driverController.x().whileTrue(getAction(ArkelonActions.staticShotCommand));
+
     driverController.leftTrigger().whileTrue(getAction(ArkelonActions.intakeHighCommand));
     driverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
     driverController.leftBumper().whileTrue(getAction(ArkelonActions.intakeRunCommand));
@@ -371,6 +402,8 @@ public final class RobotContainer {
     coDriverController.a().whileTrue(getAction(ArkelonActions.shootCommand));
 
     coDriverController.b().whileTrue(getAction(ArkelonActions.passCommand));
+
+    coDriverController.x().whileTrue(getAction(ArkelonActions.staticShotCommand));
 
     coDriverController.leftTrigger().whileTrue(getAction(ArkelonActions.intakeHighCommand));
     coDriverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
