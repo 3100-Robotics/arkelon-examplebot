@@ -381,7 +381,9 @@ public final class RobotContainer {
 
     driverController.b().whileTrue(getAction(ArkelonActions.passCommand));
 
-    driverController.x().whileTrue(getAction(ArkelonActions.staticShotCommand));
+    driverController.x()
+      .whileTrue(getAction(ArkelonActions.staticShotCommand))
+      .whileTrue(getAction(ArkelonActions.autoAlignCommand));
 
     driverController.leftTrigger().whileTrue(getAction(ArkelonActions.intakeHighCommand));
     driverController.rightBumper().whileTrue(getAction(ArkelonActions.intakeMidLowToggleCommand));
